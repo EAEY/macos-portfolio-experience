@@ -3,6 +3,9 @@ import Window from "./Window";
 import AboutWindow from "./windows/AboutWindow";
 import SkillsWindow from "./windows/SkillsWindow";
 import ProjectsWindow from "./windows/ProjectsWindow";
+import ExperiencesWindow from "./windows/ExperiencesWindow";
+import ContactWindow from "./windows/ContactWindow";
+import CVWindow from "./windows/CVWindow";
 import { DockItemId } from "./Dock";
 
 interface WindowConfig {
@@ -38,24 +41,24 @@ const windowConfigs: Record<string, Omit<WindowConfig, "id">> = {
   },
   experiences: {
     title: "Experiences",
-    component: <div className="text-muted-foreground">Coming in Phase 3...</div>,
-    initialPosition: { x: 250, y: 120 },
-    initialSize: { width: 600, height: 450 },
-    minSize: { width: 400, height: 300 },
+    component: <ExperiencesWindow />,
+    initialPosition: { x: 120, y: 70 },
+    initialSize: { width: 600, height: 500 },
+    minSize: { width: 400, height: 350 },
   },
   contact: {
     title: "Contact",
-    component: <div className="text-muted-foreground">Coming in Phase 3...</div>,
-    initialPosition: { x: 300, y: 140 },
-    initialSize: { width: 500, height: 450 },
-    minSize: { width: 350, height: 350 },
+    component: <ContactWindow />,
+    initialPosition: { x: 180, y: 90 },
+    initialSize: { width: 650, height: 500 },
+    minSize: { width: 450, height: 400 },
   },
   cv: {
     title: "CV",
-    component: <div className="text-muted-foreground">Coming in Phase 3...</div>,
-    initialPosition: { x: 350, y: 160 },
-    initialSize: { width: 600, height: 500 },
-    minSize: { width: 400, height: 400 },
+    component: <CVWindow />,
+    initialPosition: { x: 220, y: 110 },
+    initialSize: { width: 550, height: 550 },
+    minSize: { width: 400, height: 450 },
   },
 };
 
