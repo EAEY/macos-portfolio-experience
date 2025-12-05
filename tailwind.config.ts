@@ -57,33 +57,113 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        // macOS specific colors
+        macos: {
+          blue: "hsl(var(--macos-blue))",
+          red: "hsl(var(--macos-red))",
+          yellow: "hsl(var(--macos-yellow))",
+          green: "hsl(var(--macos-green))",
+        },
+        desktop: {
+          DEFAULT: "hsl(var(--desktop-bg))",
+        },
+        glass: {
+          bg: "hsl(var(--glass-bg))",
+          border: "hsl(var(--glass-border))",
+        },
+        dock: {
+          bg: "hsl(var(--dock-bg))",
+          border: "hsl(var(--dock-border))",
+        },
+        menubar: {
+          bg: "hsl(var(--menubar-bg))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        xl: "calc(var(--radius) + 4px)",
+        "2xl": "calc(var(--radius) + 8px)",
       },
       keyframes: {
         "accordion-down": {
-          from: {
-            height: "0",
-          },
-          to: {
-            height: "var(--radix-accordion-content-height)",
-          },
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
-          from: {
-            height: "var(--radix-accordion-content-height)",
-          },
-          to: {
-            height: "0",
-          },
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
+        },
+        // Boot screen animations
+        "logo-pulse": {
+          "0%, 100%": { opacity: "0.6", transform: "scale(1)" },
+          "50%": { opacity: "1", transform: "scale(1.02)" },
+        },
+        "logo-glow": {
+          "0%, 100%": { filter: "drop-shadow(0 0 20px hsl(0 0% 100% / 0.3))" },
+          "50%": { filter: "drop-shadow(0 0 40px hsl(0 0% 100% / 0.5))" },
+        },
+        "progress-indeterminate": {
+          "0%": { transform: "translateX(-100%)" },
+          "100%": { transform: "translateX(300%)" },
+        },
+        "fade-in": {
+          from: { opacity: "0" },
+          to: { opacity: "1" },
+        },
+        "fade-out": {
+          from: { opacity: "1" },
+          to: { opacity: "0" },
+        },
+        "scale-in": {
+          from: { opacity: "0", transform: "scale(0.95)" },
+          to: { opacity: "1", transform: "scale(1)" },
+        },
+        "scale-out": {
+          from: { opacity: "1", transform: "scale(1)" },
+          to: { opacity: "0", transform: "scale(0.95)" },
+        },
+        // Dock bounce
+        "dock-bounce": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-20px)" },
+        },
+        // Window animations
+        "window-open": {
+          from: { opacity: "0", transform: "scale(0.9) translateY(20px)" },
+          to: { opacity: "1", transform: "scale(1) translateY(0)" },
+        },
+        "window-close": {
+          from: { opacity: "1", transform: "scale(1)" },
+          to: { opacity: "0", transform: "scale(0.9)" },
+        },
+        // Parallax subtle movement
+        "parallax-float": {
+          "0%, 100%": { transform: "translate(0, 0)" },
+          "25%": { transform: "translate(5px, 5px)" },
+          "50%": { transform: "translate(0, 10px)" },
+          "75%": { transform: "translate(-5px, 5px)" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "logo-pulse": "logo-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "logo-glow": "logo-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "progress-indeterminate": "progress-indeterminate 1.5s ease-in-out infinite",
+        "fade-in": "fade-in 0.5s ease-out forwards",
+        "fade-out": "fade-out 0.5s ease-out forwards",
+        "scale-in": "scale-in 0.3s cubic-bezier(0.2, 0.9, 0.2, 1) forwards",
+        "scale-out": "scale-out 0.2s ease-out forwards",
+        "dock-bounce": "dock-bounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)",
+        "window-open": "window-open 0.35s cubic-bezier(0.2, 0.9, 0.2, 1) forwards",
+        "window-close": "window-close 0.2s ease-out forwards",
+        "parallax-float": "parallax-float 20s ease-in-out infinite",
+      },
+      transitionTimingFunction: {
+        "macos-smooth": "cubic-bezier(0.2, 0.9, 0.2, 1)",
+        "macos-bounce": "cubic-bezier(0.34, 1.56, 0.64, 1)",
       },
     },
   },
