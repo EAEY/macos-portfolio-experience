@@ -23,6 +23,20 @@
     --macos-yellow: 45 100% 51%;
     --macos-green: 140 70% 45%;
     
+    /* Extended accent palette */
+    --macos-accent-blue: 211 100% 50%;
+    --macos-accent-purple: 280 80% 60%;
+    --macos-accent-pink: 330 80% 60%;
+    --macos-accent-orange: 25 95% 55%;
+    --macos-accent-yellow: 45 100% 51%;
+    --macos-accent-green: 140 70% 45%;
+    --macos-accent-cyan: 185 90% 45%;
+    
+    /* Traffic light colors */
+    --macos-traffic-red: 0 85% 60%;
+    --macos-traffic-yellow: 45 100% 55%;
+    --macos-traffic-green: 130 60% 50%;
+    
     /* Dock */
     --dock-bg: 0 0% 100% / 0.12;
     --dock-border: 0 0% 100% / 0.18;

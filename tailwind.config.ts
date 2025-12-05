@@ -63,6 +63,16 @@ export default {
           red: "hsl(var(--macos-red))",
           yellow: "hsl(var(--macos-yellow))",
           green: "hsl(var(--macos-green))",
+          "accent-blue": "hsl(var(--macos-accent-blue))",
+          "accent-purple": "hsl(var(--macos-accent-purple))",
+          "accent-pink": "hsl(var(--macos-accent-pink))",
+          "accent-orange": "hsl(var(--macos-accent-orange))",
+          "accent-yellow": "hsl(var(--macos-accent-yellow))",
+          "accent-green": "hsl(var(--macos-accent-green))",
+          "accent-cyan": "hsl(var(--macos-accent-cyan))",
+          "traffic-red": "hsl(var(--macos-traffic-red))",
+          "traffic-yellow": "hsl(var(--macos-traffic-yellow))",
+          "traffic-green": "hsl(var(--macos-traffic-green))",
         },
         desktop: {
           DEFAULT: "hsl(var(--desktop-bg))",
@@ -78,6 +88,10 @@ export default {
         menubar: {
           bg: "hsl(var(--menubar-bg))",
         },
+      },
+      boxShadow: {
+        "window": "0 25px 50px -12px hsl(0 0% 0% / 0.5)",
+        "window-active": "0 30px 60px -15px hsl(0 0% 0% / 0.6)",
       },
       borderRadius: {
         lg: "var(--radius)",

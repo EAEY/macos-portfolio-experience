@@ -1,45 +1,89 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import BootScreen from "@/components/macos/BootScreen";
 import Desktop from "@/components/macos/Desktop";
 import MenuBar from "@/components/macos/MenuBar";
 import Dock, { DockItemId } from "@/components/macos/Dock";
 import SpotlightSearch from "@/components/macos/SpotlightSearch";
+import WindowManager from "@/components/macos/WindowManager";
+
+const windowTitles: Record<DockItemId, string> = {
+  about: "About",
+  skills: "Skills",
+  projects: "Projects",
+  experiences: "Experiences",
+  contact: "Contact",
+  cv: "CV",
+  github: "GitHub",
+  linkedin: "LinkedIn",
+};
 
 const Index = () => {
   const [isBooting, setIsBooting] = useState(true);
   const [isSpotlightOpen, setIsSpotlightOpen] = useState(false);
-  const [activeWindows, setActiveWindows] = useState<DockItemId[]>([]);
+  const [openWindows, setOpenWindows] = useState<DockItemId[]>([]);
   const [minimizedWindows, setMinimizedWindows] = useState<DockItemId[]>([]);
-  const [activeWindowTitle, setActiveWindowTitle] = useState<string | undefined>();
+  const [activeWindow, setActiveWindow] = useState<DockItemId | null>(null);
+
+  // Refs for dock icons (for minimize animation)
+  const dockIconRefs = useRef<Record<DockItemId, React.RefObject<HTMLButtonElement>>>({
+    about: { current: null },
+    skills: { current: null },
+    projects: { current: null },
+    experiences: { current: null },
+    contact: { current: null },
+    cv: { current: null },
+    github: { current: null },
+    linkedin: { current: null },
+  });
 
   const handleBootComplete = useCallback(() => {
     setIsBooting(false);
   }, []);
 
   const handleOpenWindow = useCallback((id: DockItemId) => {
+    // External links - open in new tab
+    if (id === "github") {
+      window.open("https://github.com", "_blank");
+      return;
+    }
+    if (id === "linkedin") {
+      window.open("https://linkedin.com", "_blank");
+      return;
+    }
+
     // If minimized, restore it
     if (minimizedWindows.includes(id)) {
       setMinimizedWindows((prev) => prev.filter((w) => w !== id));
     }
 
-    // Add to active windows if not already open
-    if (!activeWindows.includes(id)) {
-      setActiveWindows((prev) => [...prev, id]);
+    // Add to open windows if not already open
+    if (!openWindows.includes(id)) {
+      setOpenWindows((prev) => [...prev, id]);
     }
 
-    // Set as active title
-    const titles: Record<DockItemId, string> = {
-      about: "About",
-      skills: "Skills",
-      projects: "Projects",
-      experiences: "Experiences",
-      contact: "Contact",
-      cv: "CV",
-      github: "GitHub",
-      linkedin: "LinkedIn",
-    };
-    setActiveWindowTitle(titles[id]);
-  }, [activeWindows, minimizedWindows]);
+    // Set as active window
+    setActiveWindow(id);
+  }, [openWindows, minimizedWindows]);
+
+  const handleCloseWindow = useCallback((id: DockItemId) => {
+    setOpenWindows((prev) => prev.filter((w) => w !== id));
+    setMinimizedWindows((prev) => prev.filter((w) => w !== id));
+    
+    // Clear active window if it was the closed one
+    setActiveWindow((prev) => (prev === id ? null : prev));
+    
+    // Clear localStorage for this window
+    localStorage.removeItem(`window_${id}`);
+  }, []);
+
+  const handleMinimizeWindow = useCallback((id: DockItemId) => {
+    setMinimizedWindows((prev) => [...prev, id]);
+    setActiveWindow((prev) => (prev === id ? null : prev));
+  }, []);
+
+  const handleFocusWindow = useCallback((id: DockItemId) => {
+    setActiveWindow(id);
+  }, []);
 
   const handleSpotlightOpen = useCallback(() => {
     setIsSpotlightOpen(true);
@@ -49,6 +93,8 @@ const Index = () => {
     setIsSpotlightOpen(false);
   }, []);
 
+  const activeWindowTitle = activeWindow ? windowTitles[activeWindow] : undefined;
+
   return (
     <>
       {/* Boot Screen */}
@@ -56,8 +102,8 @@ const Index = () => {
 
       {/* Desktop Environment */}
       <Desktop>
-        {/* Windows will be rendered here in Phase 2 */}
-        {activeWindows.length === 0 && (
+        {/* Empty state */}
+        {openWindows.length === 0 && (
           <div className="flex items-center justify-center h-full">
             <p className="text-muted-foreground text-lg animate-fade-in">
               Click an icon in the dock to get started
@@ -65,19 +111,16 @@ const Index = () => {
           </div>
         )}
 
-        {/* Temporary: Show active windows as placeholder */}
-        {activeWindows.map((id) => (
-          <div
-            key={id}
-            className="absolute inset-x-0 top-0 mx-auto mt-8 max-w-md glass rounded-xl p-6 animate-window-open"
-            style={{ top: `${activeWindows.indexOf(id) * 30 + 50}px` }}
-          >
-            <p className="text-lg font-semibold capitalize">{id} Window</p>
-            <p className="text-muted-foreground text-sm mt-2">
-              Full window implementation coming in Phase 2
-            </p>
-          </div>
-        ))}
+        {/* Window Manager */}
+        <WindowManager
+          openWindows={openWindows}
+          minimizedWindows={minimizedWindows}
+          activeWindow={activeWindow}
+          onCloseWindow={handleCloseWindow}
+          onMinimizeWindow={handleMinimizeWindow}
+          onFocusWindow={handleFocusWindow}
+          dockIconRefs={dockIconRefs.current}
+        />
       </Desktop>
 
       {/* Menu Bar */}
@@ -89,7 +132,7 @@ const Index = () => {
       {/* Dock */}
       <Dock
         onItemClick={handleOpenWindow}
-        activeWindows={activeWindows}
+        activeWindows={openWindows}
         minimizedWindows={minimizedWindows}
       />
 
