@@ -5,6 +5,9 @@ import MenuBar from "@/components/macos/MenuBar";
 import Dock, { DockItemId } from "@/components/macos/Dock";
 import SpotlightSearch from "@/components/macos/SpotlightSearch";
 import WindowManager from "@/components/macos/WindowManager";
+import MobileNav from "@/components/macos/MobileNav";
+import MobileContent from "@/components/macos/MobileContent";
+import { useIsMobile } from "@/hooks/use-media-query";
 
 const windowTitles: Record<DockItemId, string> = {
   about: "About",
@@ -13,6 +16,7 @@ const windowTitles: Record<DockItemId, string> = {
   experiences: "Experiences",
   contact: "Contact",
   cv: "CV",
+  settings: "Settings",
   github: "GitHub",
   linkedin: "LinkedIn",
 };
@@ -23,6 +27,8 @@ const Index = () => {
   const [openWindows, setOpenWindows] = useState<DockItemId[]>([]);
   const [minimizedWindows, setMinimizedWindows] = useState<DockItemId[]>([]);
   const [activeWindow, setActiveWindow] = useState<DockItemId | null>(null);
+  
+  const isMobile = useIsMobile();
 
   // Refs for dock icons (for minimize animation)
   const dockIconRefs = useRef<Record<DockItemId, React.RefObject<HTMLButtonElement>>>({
@@ -32,6 +38,7 @@ const Index = () => {
     experiences: { current: null },
     contact: { current: null },
     cv: { current: null },
+    settings: { current: null },
     github: { current: null },
     linkedin: { current: null },
   });
@@ -93,8 +100,50 @@ const Index = () => {
     setIsSpotlightOpen(false);
   }, []);
 
+  // Mobile handlers
+  const handleMobileItemClick = useCallback((id: DockItemId | "settings") => {
+    if (id === "github") {
+      window.open("https://github.com", "_blank");
+      return;
+    }
+    if (id === "linkedin") {
+      window.open("https://linkedin.com", "_blank");
+      return;
+    }
+    setActiveWindow(id as DockItemId);
+  }, []);
+
+  const handleMobileClose = useCallback(() => {
+    setActiveWindow(null);
+  }, []);
+
   const activeWindowTitle = activeWindow ? windowTitles[activeWindow] : undefined;
 
+  // Mobile Layout
+  if (isMobile) {
+    return (
+      <div className="fixed inset-0 flex flex-col bg-background">
+        {/* Boot Screen */}
+        {isBooting && <BootScreen onComplete={handleBootComplete} />}
+
+        {/* Mobile Navigation */}
+        <MobileNav
+          onItemClick={handleMobileItemClick}
+          activeWindow={activeWindow}
+        />
+
+        {/* Content Area */}
+        <main className="flex-1 pt-14 pb-16 overflow-hidden">
+          <MobileContent
+            activeSection={activeWindow}
+            onClose={handleMobileClose}
+          />
+        </main>
+      </div>
+    );
+  }
+
+  // Desktop Layout
   return (
     <>
       {/* Boot Screen */}

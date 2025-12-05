@@ -8,6 +8,7 @@ import {
   FileText,
   Github,
   Linkedin,
+  Settings,
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -19,7 +20,8 @@ export type DockItemId =
   | "contact"
   | "cv"
   | "github"
-  | "linkedin";
+  | "linkedin"
+  | "settings";
 
 interface DockItem {
   id: DockItemId;
@@ -42,6 +44,7 @@ const DOCK_ITEMS: DockItem[] = [
   { id: "experiences", label: "Experiences", icon: <Briefcase className="w-8 h-8" /> },
   { id: "contact", label: "Contact", icon: <Mail className="w-8 h-8" /> },
   { id: "cv", label: "CV", icon: <FileText className="w-8 h-8" /> },
+  { id: "settings", label: "Settings", icon: <Settings className="w-8 h-8" /> },
   {
     id: "github",
     label: "GitHub",

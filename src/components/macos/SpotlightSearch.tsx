@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Search } from "lucide-react";
 import { DockItemId } from "./Dock";
+import { useFocusTrap } from "@/hooks/use-focus-trap";
 
 interface SpotlightSearchProps {
   isOpen: boolean;
@@ -22,6 +23,7 @@ const SEARCH_INDEX: SearchResult[] = [
   { id: "experiences", label: "Experiences", description: "Work experience", type: "section" },
   { id: "contact", label: "Contact", description: "Get in touch", type: "section" },
   { id: "cv", label: "CV", description: "Download resume", type: "section" },
+  { id: "settings", label: "Settings", description: "Customize appearance & accessibility", type: "section" },
 ];
 
 export const SpotlightSearch = ({ isOpen, onClose, onOpenWindow }: SpotlightSearchProps) => {
@@ -29,6 +31,7 @@ export const SpotlightSearch = ({ isOpen, onClose, onOpenWindow }: SpotlightSear
   const [results, setResults] = useState<SearchResult[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const focusTrapRef = useFocusTrap(isOpen);
 
   // Focus input when opened
   useEffect(() => {
@@ -100,6 +103,7 @@ export const SpotlightSearch = ({ isOpen, onClose, onOpenWindow }: SpotlightSear
 
       {/* Search Modal */}
       <div
+        ref={focusTrapRef}
         className="relative w-full max-w-xl mx-4 glass rounded-xl overflow-hidden animate-scale-in"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
@@ -108,7 +112,7 @@ export const SpotlightSearch = ({ isOpen, onClose, onOpenWindow }: SpotlightSear
       >
         {/* Search Input */}
         <div className="flex items-center gap-3 px-4 py-3 border-b border-border">
-          <Search className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+          <Search className="w-5 h-5 text-muted-foreground flex-shrink-0" aria-hidden="true" />
           <input
             ref={inputRef}
             type="text"
@@ -118,6 +122,9 @@ export const SpotlightSearch = ({ isOpen, onClose, onOpenWindow }: SpotlightSear
             placeholder="Search..."
             className="flex-1 bg-transparent text-lg outline-none placeholder:text-muted-foreground"
             aria-label="Search"
+            aria-autocomplete="list"
+            aria-controls="spotlight-results"
+            aria-activedescendant={results[selectedIndex] ? `result-${results[selectedIndex].id}` : undefined}
           />
           <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 text-xs text-muted-foreground bg-secondary rounded">
             ESC
@@ -126,10 +133,16 @@ export const SpotlightSearch = ({ isOpen, onClose, onOpenWindow }: SpotlightSear
 
         {/* Results */}
         {results.length > 0 && (
-          <ul className="max-h-80 overflow-auto p-2" role="listbox">
+          <ul 
+            id="spotlight-results"
+            className="max-h-80 overflow-auto p-2" 
+            role="listbox"
+            aria-label="Search results"
+          >
             {results.map((result, index) => (
               <li
                 key={result.id}
+                id={`result-${result.id}`}
                 role="option"
                 aria-selected={index === selectedIndex}
                 className={`flex flex-col px-3 py-2 rounded-lg cursor-pointer transition-colors ${
