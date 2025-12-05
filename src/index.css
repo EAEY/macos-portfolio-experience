@@ -180,6 +180,11 @@
   .traffic-maximize {
     @apply bg-[hsl(var(--macos-green))] hover:brightness-110;
   }
+
+  /* Safe area for mobile devices */
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
 }
 
 /* Reduced motion support */
@@ -191,4 +196,43 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* Settings: reduce motion class */
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+/* Settings: high contrast mode */
+.high-contrast {
+  --glass-bg: 0 0% 100% / 0.15;
+  --glass-border: 0 0% 100% / 0.25;
+  --foreground: 0 0% 100%;
+  --muted-foreground: 0 0% 85%;
+}
+
+/* Focus visible styles for accessibility */
+:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+/* Skip link for keyboard navigation */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  padding: 8px 16px;
+  z-index: 100;
+  transition: top 0.3s;
+}
+
+.skip-link:focus {
+  top: 0;
 }

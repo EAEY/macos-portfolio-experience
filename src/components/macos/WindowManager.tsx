@@ -6,6 +6,7 @@ import ProjectsWindow from "./windows/ProjectsWindow";
 import ExperiencesWindow from "./windows/ExperiencesWindow";
 import ContactWindow from "./windows/ContactWindow";
 import CVWindow from "./windows/CVWindow";
+import SettingsWindow from "./windows/SettingsWindow";
 import { DockItemId } from "./Dock";
 
 interface WindowConfig {
@@ -59,6 +60,13 @@ const windowConfigs: Record<string, Omit<WindowConfig, "id">> = {
     initialPosition: { x: 220, y: 110 },
     initialSize: { width: 550, height: 550 },
     minSize: { width: 400, height: 450 },
+  },
+  settings: {
+    title: "Settings",
+    component: <SettingsWindow />,
+    initialPosition: { x: 160, y: 80 },
+    initialSize: { width: 600, height: 450 },
+    minSize: { width: 500, height: 350 },
   },
 };
 
