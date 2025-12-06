@@ -47,7 +47,7 @@ export const MobileContent = ({ activeSection, onClose }: MobileContentProps) =>
 
   if (!activeSection) {
     return (
-      <div className="flex-1 flex items-center justify-center p-6">
+      <div className="flex-1 flex items-center justify-center p-6 overflow-auto">
         <div className="text-center space-y-4 animate-fade-in">
           <div className="w-16 h-16 mx-auto rounded-2xl bg-secondary/50 flex items-center justify-center">
             <span className="text-3xl">👋</span>
@@ -65,10 +65,10 @@ export const MobileContent = ({ activeSection, onClose }: MobileContentProps) =>
   const content = SECTION_COMPONENTS[activeSection];
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden animate-fade-in">
+    <div className="flex-1 flex flex-col min-h-0 animate-fade-in">
       {/* Section Header */}
       <header
-        className="flex items-center gap-3 p-4 border-b border-border/50 bg-background/80 backdrop-blur-sm"
+        className="flex-shrink-0 flex items-center gap-3 p-4 border-b border-border/50 bg-background/80 backdrop-blur-sm"
         role="banner"
       >
         <button
@@ -94,14 +94,16 @@ export const MobileContent = ({ activeSection, onClose }: MobileContentProps) =>
         </button>
       </header>
 
-      {/* Section Content */}
+      {/* Section Content - Scrollable */}
       <div
         ref={contentRef}
-        className="flex-1 overflow-auto p-4"
+        className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain"
         role="main"
         aria-label={`${title} content`}
       >
-        {content}
+        <div className="p-4 pb-8">
+          {content}
+        </div>
       </div>
     </div>
   );

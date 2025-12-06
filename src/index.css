@@ -95,11 +95,75 @@
     --sidebar-border: 0 0% 100% / 0.1;
     --sidebar-ring: 211 100% 50%;
   }
+
+  /* Light theme */
+  .light {
+    --desktop-bg: 220 20% 96%;
+    --desktop-wallpaper-accent: 220 60% 85%;
+    
+    /* Glass effect tokens - light mode */
+    --glass-bg: 0 0% 100% / 0.7;
+    --glass-border: 0 0% 0% / 0.08;
+    --glass-highlight: 0 0% 100% / 0.5;
+    
+    /* Dock - light mode */
+    --dock-bg: 0 0% 100% / 0.7;
+    --dock-border: 0 0% 0% / 0.1;
+    
+    /* Menu bar - light mode */
+    --menubar-bg: 0 0% 100% / 0.7;
+    
+    /* Shadows - light mode */
+    --shadow-window: 0 25px 50px -12px hsl(0 0% 0% / 0.15);
+    --shadow-dock: 0 8px 32px hsl(0 0% 0% / 0.1);
+    
+    /* Base tokens - light theme */
+    --background: 0 0% 100%;
+    --foreground: 240 10% 6%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 6%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 6%;
+
+    --primary: 211 100% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 15% 94%;
+    --secondary-foreground: 240 10% 6%;
+
+    --muted: 220 15% 94%;
+    --muted-foreground: 240 5% 40%;
+
+    --accent: 220 15% 94%;
+    --accent-foreground: 240 10% 6%;
+
+    --destructive: 0 85% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 0% / 0.08;
+    --input: 220 15% 94%;
+    --ring: 211 100% 50%;
+
+    --sidebar-background: 220 15% 98%;
+    --sidebar-foreground: 240 10% 20%;
+    --sidebar-primary: 211 100% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 15% 94%;
+    --sidebar-accent-foreground: 240 10% 6%;
+    --sidebar-border: 0 0% 0% / 0.08;
+    --sidebar-ring: 211 100% 50%;
+  }
 }
 
 @layer base {
   * {
     @apply border-border;
+  }
+
+  html {
+    @apply scroll-smooth;
   }
 
   body {
@@ -115,7 +179,7 @@
     background: linear-gradient(
       180deg,
       hsl(var(--glass-bg)),
-      hsl(0 0% 100% / 0.02)
+      hsl(var(--glass-bg))
     );
     border: 1px solid hsl(var(--glass-border));
     backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
@@ -131,7 +195,7 @@
     pointer-events: none;
     background: linear-gradient(
       135deg,
-      hsl(0 0% 100% / 0.06) 0%,
+      hsl(var(--glass-highlight)) 0%,
       transparent 50%
     );
     border-radius: inherit;
@@ -185,6 +249,11 @@
   .safe-area-bottom {
     padding-bottom: env(safe-area-inset-bottom, 0);
   }
+
+  /* Smooth theme transition */
+  .theme-transition {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  }
 }
 
 /* Reduced motion support */
@@ -215,6 +284,13 @@
   --muted-foreground: 0 0% 85%;
 }
 
+.light.high-contrast {
+  --glass-bg: 0 0% 100% / 0.9;
+  --glass-border: 0 0% 0% / 0.2;
+  --foreground: 0 0% 0%;
+  --muted-foreground: 0 0% 25%;
+}
+
 /* Focus visible styles for accessibility */
 :focus-visible {
   outline: 2px solid hsl(var(--ring));
@@ -231,6 +307,16 @@
   padding: 8px 16px;
   z-index: 100;
   transition: top 0.3s;
+}
+
+/* Theme transition on html element */
+html {
+  transition: background-color 0.3s ease;
+}
+
+html.dark,
+html.light {
+  color-scheme: light dark;
 }
 
 .skip-link:focus {

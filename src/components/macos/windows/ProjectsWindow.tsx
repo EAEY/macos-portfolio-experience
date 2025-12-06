@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ExternalLink, Github, Figma, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -83,19 +83,19 @@ const ProjectCard = ({
       onClick={onClick}
       className={cn(
         "group relative overflow-hidden rounded-xl cursor-pointer",
-        "bg-white/5 border border-glass-border",
-        "hover:bg-white/10 hover:border-macos-accent-blue/50",
+        "bg-secondary/50 border border-border",
+        "hover:bg-secondary hover:border-primary/50",
         "transition-all duration-300"
       )}
     >
       {/* Project Image Placeholder */}
-      <div className="aspect-video bg-gradient-to-br from-macos-accent-blue/20 to-macos-accent-purple/20 flex items-center justify-center">
+      <div className="aspect-video bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
         <span className="text-4xl opacity-50">🖼️</span>
       </div>
 
       {/* Content */}
       <div className="p-4 space-y-2">
-        <h3 className="font-semibold text-foreground group-hover:text-macos-accent-blue transition-colors">
+        <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
           {project.title}
         </h3>
         <p className="text-sm text-muted-foreground line-clamp-2">
@@ -105,13 +105,13 @@ const ProjectCard = ({
           {project.tags.slice(0, 3).map((tag) => (
             <span
               key={tag}
-              className="px-2 py-0.5 text-xs rounded-full bg-macos-accent-blue/20 text-macos-accent-blue"
+              className="px-2 py-0.5 text-xs rounded-full bg-primary/20 text-primary"
             >
               {tag}
             </span>
           ))}
           {project.tags.length > 3 && (
-            <span className="px-2 py-0.5 text-xs rounded-full bg-white/10 text-muted-foreground">
+            <span className="px-2 py-0.5 text-xs rounded-full bg-muted text-muted-foreground">
               +{project.tags.length - 3}
             </span>
           )}
@@ -119,8 +119,8 @@ const ProjectCard = ({
       </div>
 
       {/* Hover overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-4">
-        <span className="text-sm font-medium text-white">Click to view details</span>
+      <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-4">
+        <span className="text-sm font-medium text-foreground">Click to view details</span>
       </div>
     </div>
   );
@@ -141,75 +141,113 @@ const ProjectModal = ({
   hasPrev: boolean;
   hasNext: boolean;
 }) => {
+  // Handle escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+      if (e.key === "ArrowLeft" && hasPrev) onPrev();
+      if (e.key === "ArrowRight" && hasNext) onNext();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose, onPrev, onNext, hasPrev, hasNext]);
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-background/80 backdrop-blur-sm"
         onClick={onClose}
       />
 
-      {/* Modal */}
-      <div className="relative w-full max-w-2xl bg-glass-bg/95 backdrop-blur-xl border border-glass-border rounded-2xl shadow-2xl overflow-hidden animate-scale-in">
+      {/* Modal - Responsive sizing */}
+      <div className="relative w-full max-w-[95vw] sm:max-w-lg md:max-w-xl lg:max-w-2xl max-h-[90vh] overflow-auto bg-card/95 backdrop-blur-xl border border-border rounded-2xl shadow-2xl animate-scale-in">
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 p-2 rounded-full bg-black/40 hover:bg-black/60 transition-colors"
+          className="absolute top-2 right-2 sm:top-4 sm:right-4 z-10 p-2 rounded-full bg-background/60 hover:bg-background/80 transition-colors"
+          aria-label="Close modal"
         >
-          <X className="w-4 h-4 text-white" />
+          <X className="w-4 h-4" />
         </button>
 
-        {/* Navigation buttons */}
+        {/* Navigation buttons - Hidden on small screens */}
         {hasPrev && (
           <button
             onClick={onPrev}
-            className="absolute left-4 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-black/40 hover:bg-black/60 transition-colors"
+            className="hidden sm:flex absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-background/60 hover:bg-background/80 transition-colors"
+            aria-label="Previous project"
           >
-            <ChevronLeft className="w-5 h-5 text-white" />
+            <ChevronLeft className="w-5 h-5" />
           </button>
         )}
         {hasNext && (
           <button
             onClick={onNext}
-            className="absolute right-4 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-black/40 hover:bg-black/60 transition-colors"
+            className="hidden sm:flex absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-background/60 hover:bg-background/80 transition-colors"
+            aria-label="Next project"
           >
-            <ChevronRight className="w-5 h-5 text-white" />
+            <ChevronRight className="w-5 h-5" />
           </button>
         )}
 
         {/* Image */}
-        <div className="aspect-video bg-gradient-to-br from-macos-accent-blue/30 to-macos-accent-purple/30 flex items-center justify-center">
-          <span className="text-6xl opacity-50">🖼️</span>
+        <div className="aspect-video bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center">
+          <span className="text-4xl sm:text-6xl opacity-50">🖼️</span>
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-4">
-          <h2 className="text-2xl font-bold text-foreground">{project.title}</h2>
-          <p className="text-foreground/80 leading-relaxed">{project.description}</p>
+        <div className="p-4 sm:p-6 space-y-3 sm:space-y-4">
+          <h2 className="text-xl sm:text-2xl font-bold text-foreground">{project.title}</h2>
+          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">{project.description}</p>
 
           {/* Tags */}
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1.5 sm:gap-2">
             {project.tags.map((tag) => (
               <span
                 key={tag}
-                className="px-3 py-1 text-sm rounded-full bg-macos-accent-blue/20 text-macos-accent-blue"
+                className="px-2 sm:px-3 py-0.5 sm:py-1 text-xs sm:text-sm rounded-full bg-primary/20 text-primary"
               >
                 {tag}
               </span>
             ))}
           </div>
 
+          {/* Mobile navigation */}
+          <div className="flex sm:hidden justify-between pt-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onPrev}
+              disabled={!hasPrev}
+              className="gap-1"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              Prev
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onNext}
+              disabled={!hasNext}
+              className="gap-1"
+            >
+              Next
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </div>
+
           {/* Links */}
-          <div className="flex gap-3 pt-4 border-t border-glass-border/50">
+          <div className="flex flex-wrap gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-border">
             {project.liveUrl && (
               <Button
                 variant="outline"
                 size="sm"
-                className="gap-2 bg-macos-accent-blue/20 border-macos-accent-blue/40 hover:bg-macos-accent-blue/30"
+                className="gap-2 bg-primary/20 border-primary/40 hover:bg-primary/30 text-xs sm:text-sm"
                 asChild
               >
                 <a href={project.liveUrl} target="_blank" rel="noopener noreferrer">
-                  <ExternalLink className="w-4 h-4" />
+                  <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
                   Live Demo
                 </a>
               </Button>
@@ -218,11 +256,11 @@ const ProjectModal = ({
               <Button
                 variant="outline"
                 size="sm"
-                className="gap-2 bg-white/10 border-glass-border hover:bg-white/20"
+                className="gap-2 bg-secondary border-border hover:bg-secondary/80 text-xs sm:text-sm"
                 asChild
               >
                 <a href={project.repoUrl} target="_blank" rel="noopener noreferrer">
-                  <Github className="w-4 h-4" />
+                  <Github className="w-3 h-3 sm:w-4 sm:h-4" />
                   Repository
                 </a>
               </Button>
@@ -231,11 +269,11 @@ const ProjectModal = ({
               <Button
                 variant="outline"
                 size="sm"
-                className="gap-2 bg-macos-accent-purple/20 border-macos-accent-purple/40 hover:bg-macos-accent-purple/30"
+                className="gap-2 bg-accent/20 border-accent/40 hover:bg-accent/30 text-xs sm:text-sm"
                 asChild
               >
                 <a href={project.figmaUrl} target="_blank" rel="noopener noreferrer">
-                  <Figma className="w-4 h-4" />
+                  <Figma className="w-3 h-3 sm:w-4 sm:h-4" />
                   Figma
                 </a>
               </Button>

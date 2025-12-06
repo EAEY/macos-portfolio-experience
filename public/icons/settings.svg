@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="settingsGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6B7280"/>
+      <stop offset="100%" style="stop-color:#374151"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#settingsGrad)"/>
+  <circle cx="32" cy="32" r="12" stroke="white" stroke-width="3" fill="none"/>
+  <circle cx="32" cy="32" r="5" fill="white"/>
+  <line x1="32" y1="8" x2="32" y2="16" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="32" y1="48" x2="32" y2="56" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="8" y1="32" x2="16" y2="32" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="48" y1="32" x2="56" y2="32" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="15" y1="15" x2="20.7" y2="20.7" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="43.3" y1="43.3" x2="49" y2="49" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="15" y1="49" x2="20.7" y2="43.3" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="43.3" y1="20.7" x2="49" y2="15" stroke="white" stroke-width="3" stroke-linecap="round"/>
+</svg>

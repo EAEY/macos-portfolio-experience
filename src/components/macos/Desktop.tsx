@@ -1,4 +1,6 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useCallback, useRef } from "react";
+import { useWallpaper } from "@/contexts/WallpaperContext";
+import { usePrefersReducedMotion } from "@/hooks/use-media-query";
 
 interface DesktopProps {
   children: React.ReactNode;
@@ -6,21 +8,9 @@ interface DesktopProps {
 
 export const Desktop = ({ children }: DesktopProps) => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const desktopRef = useRef<HTMLDivElement>(null);
-
-  // Check for reduced motion preference
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setPrefersReducedMotion(mediaQuery.matches);
-
-    const handleChange = (e: MediaQueryListEvent) => {
-      setPrefersReducedMotion(e.matches);
-    };
-
-    mediaQuery.addEventListener("change", handleChange);
-    return () => mediaQuery.removeEventListener("change", handleChange);
-  }, []);
+  const prefersReducedMotion = usePrefersReducedMotion();
+  const { currentWallpaper } = useWallpaper();
 
   // Parallax effect on mouse move
   const handleMouseMove = useCallback(
@@ -46,30 +36,28 @@ export const Desktop = ({ children }: DesktopProps) => {
     >
       {/* Wallpaper Background */}
       <div
-        className="absolute inset-0 transition-transform duration-300 ease-out"
+        className="absolute inset-0 transition-all duration-500 ease-out"
         style={{
           transform: prefersReducedMotion
             ? "none"
             : `translate(${mousePosition.x}px, ${mousePosition.y}px) scale(1.05)`,
+          background: currentWallpaper.value,
         }}
       >
-        {/* Gradient wallpaper with mesh-like pattern */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(220,60%,12%)] via-[hsl(260,40%,15%)] to-[hsl(200,50%,10%)]" />
-        
         {/* Animated gradient orbs */}
         <div
-          className={`absolute top-1/4 left-1/4 w-[600px] h-[600px] rounded-full bg-gradient-to-r from-[hsl(210,100%,40%,0.3)] to-[hsl(280,100%,50%,0.2)] blur-[100px] ${
+          className={`absolute top-1/4 left-1/4 w-[600px] h-[600px] rounded-full bg-gradient-to-r from-primary/30 to-accent/20 blur-[100px] ${
             prefersReducedMotion ? "" : "animate-parallax-float"
           }`}
         />
         <div
-          className={`absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full bg-gradient-to-r from-[hsl(300,100%,50%,0.2)] to-[hsl(200,100%,60%,0.15)] blur-[80px] ${
+          className={`absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full bg-gradient-to-r from-accent/20 to-primary/15 blur-[80px] ${
             prefersReducedMotion ? "" : "animate-parallax-float"
           }`}
           style={{ animationDelay: "-10s" }}
         />
         <div
-          className={`absolute top-1/2 right-1/3 w-[400px] h-[400px] rounded-full bg-gradient-to-r from-[hsl(180,100%,50%,0.15)] to-[hsl(240,100%,60%,0.1)] blur-[60px] ${
+          className={`absolute top-1/2 right-1/3 w-[400px] h-[400px] rounded-full bg-gradient-to-r from-secondary/30 to-primary/10 blur-[60px] ${
             prefersReducedMotion ? "" : "animate-parallax-float"
           }`}
           style={{ animationDelay: "-5s" }}

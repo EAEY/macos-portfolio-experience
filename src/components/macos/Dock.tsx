@@ -1,15 +1,4 @@
 import { useState, useRef, useCallback, useEffect } from "react";
-import {
-  User,
-  Code,
-  FolderKanban,
-  Briefcase,
-  Mail,
-  FileText,
-  Github,
-  Linkedin,
-  Settings,
-} from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 export type DockItemId =
@@ -26,7 +15,7 @@ export type DockItemId =
 interface DockItem {
   id: DockItemId;
   label: string;
-  icon: React.ReactNode;
+  icon: string; // Path to icon image
   isExternal?: boolean;
   href?: string;
 }
@@ -37,25 +26,26 @@ interface DockProps {
   minimizedWindows: DockItemId[];
 }
 
+// Icons are stored in /public/icons/ - replace these files to change icons
 const DOCK_ITEMS: DockItem[] = [
-  { id: "about", label: "About", icon: <User className="w-8 h-8" /> },
-  { id: "skills", label: "Skills", icon: <Code className="w-8 h-8" /> },
-  { id: "projects", label: "Projects", icon: <FolderKanban className="w-8 h-8" /> },
-  { id: "experiences", label: "Experiences", icon: <Briefcase className="w-8 h-8" /> },
-  { id: "contact", label: "Contact", icon: <Mail className="w-8 h-8" /> },
-  { id: "cv", label: "CV", icon: <FileText className="w-8 h-8" /> },
-  { id: "settings", label: "Settings", icon: <Settings className="w-8 h-8" /> },
+  { id: "about", label: "About", icon: "/icons/about.svg" },
+  { id: "skills", label: "Skills", icon: "/icons/skills.svg" },
+  { id: "projects", label: "Projects", icon: "/icons/projects.svg" },
+  { id: "experiences", label: "Experiences", icon: "/icons/experiences.svg" },
+  { id: "contact", label: "Contact", icon: "/icons/contact.svg" },
+  { id: "cv", label: "CV", icon: "/icons/cv.svg" },
+  { id: "settings", label: "Settings", icon: "/icons/settings.svg" },
   {
     id: "github",
     label: "GitHub",
-    icon: <Github className="w-8 h-8" />,
+    icon: "/icons/github.svg",
     isExternal: true,
     href: "https://github.com",
   },
   {
     id: "linkedin",
     label: "LinkedIn",
-    icon: <Linkedin className="w-8 h-8" />,
+    icon: "/icons/linkedin.svg",
     isExternal: true,
     href: "https://linkedin.com",
   },
@@ -153,11 +143,16 @@ export const Dock = ({ onItemClick, activeWindows, minimizedWindows }: DockProps
                 aria-label={`Open ${item.label}`}
               >
                 <div
-                  className={`p-2 rounded-xl bg-gradient-to-b from-secondary/80 to-secondary transition-all ${
+                  className={`w-12 h-12 rounded-xl transition-all overflow-hidden ${
                     isMinimized ? "opacity-50" : ""
                   }`}
                 >
-                  {item.icon}
+                  <img
+                    src={item.icon}
+                    alt={item.label}
+                    className="w-full h-full object-cover"
+                    draggable={false}
+                  />
                 </div>
                 {/* Active indicator dot */}
                 {isActive && (

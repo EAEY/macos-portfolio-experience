@@ -122,7 +122,7 @@ const Index = () => {
   // Mobile Layout
   if (isMobile) {
     return (
-      <div className="fixed inset-0 flex flex-col bg-background">
+      <div className="fixed inset-0 flex flex-col bg-background overflow-hidden">
         {/* Boot Screen */}
         {isBooting && <BootScreen onComplete={handleBootComplete} />}
 
@@ -132,8 +132,8 @@ const Index = () => {
           activeWindow={activeWindow}
         />
 
-        {/* Content Area */}
-        <main className="flex-1 pt-14 pb-16 overflow-hidden">
+        {/* Content Area - Fully scrollable */}
+        <main className="flex-1 flex flex-col min-h-0 pt-14 pb-16">
           <MobileContent
             activeSection={activeWindow}
             onClose={handleMobileClose}
