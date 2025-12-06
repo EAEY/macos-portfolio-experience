@@ -10,7 +10,6 @@ import IOSDock from "./IOSDock";
 import QuickActionsMenu from "./QuickActionsMenu";
 import FullScreenApp from "./FullScreenApp";
 import ControlCenter from "./ControlCenter";
-import IOSWidgetPanel from "./widgets/IOSWidgetPanel";
 
 interface IOSHomeScreenProps {
   onBootComplete?: () => void;
@@ -28,7 +27,6 @@ export const IOSHomeScreen = ({ onBootComplete }: IOSHomeScreenProps) => {
     position: { x: number; y: number };
   } | null>(null);
   const [isControlCenterOpen, setIsControlCenterOpen] = useState(false);
-  const [showWidgets, setShowWidgets] = useState(true);
 
   // Store icon ref for close animation
   const iconRefs = useRef<Map<string, DOMRect>>(new Map());
@@ -109,13 +107,6 @@ export const IOSHomeScreen = ({ onBootComplete }: IOSHomeScreenProps) => {
       
       {/* Status Bar */}
       <IOSStatusBar onSwipeDown={handleOpenControlCenter} />
-
-      {/* Widgets Panel */}
-      {showWidgets && (
-        <div className="pt-14">
-          <IOSWidgetPanel onProjectsTap={() => handleAppTap("projects")} />
-        </div>
-      )}
 
       {/* App Grid */}
       <AppGrid onAppTap={handleAppTap} onLongPress={handleLongPress} />
