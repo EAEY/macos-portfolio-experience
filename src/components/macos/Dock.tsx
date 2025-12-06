@@ -61,9 +61,17 @@ export const Dock = ({ onItemClick, activeWindows, minimizedWindows }: DockProps
     if (saved) {
       try {
         const order = JSON.parse(saved) as DockItemId[];
-        return order
+        // Ensure all items from DOCK_ITEMS are included (in case new items were added)
+        const savedItems = order
           .map((id) => DOCK_ITEMS.find((item) => item.id === id))
           .filter(Boolean) as DockItem[];
+        
+        // Add any missing items from DOCK_ITEMS
+        const missingItems = DOCK_ITEMS.filter(
+          (item) => !order.includes(item.id)
+        );
+        
+        return [...savedItems, ...missingItems];
       } catch {
         return DOCK_ITEMS;
       }

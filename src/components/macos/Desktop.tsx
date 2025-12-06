@@ -10,7 +10,7 @@ export const Desktop = ({ children }: DesktopProps) => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const desktopRef = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = usePrefersReducedMotion();
-  const { currentWallpaper } = useWallpaper();
+  const { effectiveWallpaper } = useWallpaper();
 
   // Parallax effect on mouse move
   const handleMouseMove = useCallback(
@@ -28,6 +28,18 @@ export const Desktop = ({ children }: DesktopProps) => {
     [prefersReducedMotion]
   );
 
+  // Determine background style based on wallpaper type
+  const backgroundStyle = effectiveWallpaper.type === "image"
+    ? {
+        backgroundImage: `url(${effectiveWallpaper.value})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat" as const,
+      }
+    : {
+        background: effectiveWallpaper.value,
+      };
+
   return (
     <div
       ref={desktopRef}
@@ -41,27 +53,31 @@ export const Desktop = ({ children }: DesktopProps) => {
           transform: prefersReducedMotion
             ? "none"
             : `translate(${mousePosition.x}px, ${mousePosition.y}px) scale(1.05)`,
-          background: currentWallpaper.value,
+          ...backgroundStyle,
         }}
       >
-        {/* Animated gradient orbs */}
-        <div
-          className={`absolute top-1/4 left-1/4 w-[600px] h-[600px] rounded-full bg-gradient-to-r from-primary/30 to-accent/20 blur-[100px] ${
-            prefersReducedMotion ? "" : "animate-parallax-float"
-          }`}
-        />
-        <div
-          className={`absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full bg-gradient-to-r from-accent/20 to-primary/15 blur-[80px] ${
-            prefersReducedMotion ? "" : "animate-parallax-float"
-          }`}
-          style={{ animationDelay: "-10s" }}
-        />
-        <div
-          className={`absolute top-1/2 right-1/3 w-[400px] h-[400px] rounded-full bg-gradient-to-r from-secondary/30 to-primary/10 blur-[60px] ${
-            prefersReducedMotion ? "" : "animate-parallax-float"
-          }`}
-          style={{ animationDelay: "-5s" }}
-        />
+        {/* Animated gradient orbs - only show for gradient wallpapers */}
+        {effectiveWallpaper.type === "gradient" && (
+          <>
+            <div
+              className={`absolute top-1/4 left-1/4 w-[600px] h-[600px] rounded-full bg-gradient-to-r from-primary/30 to-accent/20 blur-[100px] ${
+                prefersReducedMotion ? "" : "animate-parallax-float"
+              }`}
+            />
+            <div
+              className={`absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full bg-gradient-to-r from-accent/20 to-primary/15 blur-[80px] ${
+                prefersReducedMotion ? "" : "animate-parallax-float"
+              }`}
+              style={{ animationDelay: "-10s" }}
+            />
+            <div
+              className={`absolute top-1/2 right-1/3 w-[400px] h-[400px] rounded-full bg-gradient-to-r from-secondary/30 to-primary/10 blur-[60px] ${
+                prefersReducedMotion ? "" : "animate-parallax-float"
+              }`}
+              style={{ animationDelay: "-5s" }}
+            />
+          </>
+        )}
 
         {/* Subtle noise texture overlay */}
         <div
