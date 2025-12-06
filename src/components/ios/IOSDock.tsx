@@ -17,9 +17,8 @@ export const IOSDock = ({ onAppTap, onLongPress }: IOSDockProps) => {
     <nav
       className={cn(
         "fixed bottom-4 left-4 right-4 z-40",
-        "flex items-center justify-center gap-2 px-4 py-2",
-        "bg-background/60 backdrop-blur-xl rounded-3xl",
-        "border border-border/30 shadow-lg",
+        "flex items-center justify-center gap-3 px-5 py-3",
+        "ios-dock-glass",
         "safe-area-bottom"
       )}
       role="toolbar"
@@ -36,9 +35,7 @@ export const IOSDock = ({ onAppTap, onLongPress }: IOSDockProps) => {
       ))}
 
       {/* Done button in edit mode */}
-      {isEditMode && (
-        <DoneButton />
-      )}
+      {isEditMode && <DoneButton />}
     </nav>
   );
 };
@@ -49,9 +46,11 @@ const DoneButton = () => {
   return (
     <button
       className={cn(
-        "absolute -top-12 right-4 px-4 py-2",
+        "absolute -top-14 right-4 px-5 py-2.5",
         "bg-primary text-primary-foreground font-semibold rounded-full",
-        "shadow-lg transition-transform active:scale-95"
+        "shadow-lg transition-all duration-200",
+        "active:scale-95 hover:bg-primary/90",
+        "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       )}
       onClick={() => setEditMode(false)}
     >

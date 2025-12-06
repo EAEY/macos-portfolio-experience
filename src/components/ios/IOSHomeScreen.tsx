@@ -1,13 +1,16 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { useWallpaper } from "@/contexts/WallpaperContext";
 import { useHomeScreen, AppIcon as AppIconType } from "@/contexts/HomeScreenContext";
 import { DockItemId } from "@/components/macos/Dock";
+import { usePrefersReducedMotion } from "@/hooks/use-media-query";
 import IOSStatusBar from "./IOSStatusBar";
 import AppGrid from "./AppGrid";
 import IOSDock from "./IOSDock";
 import QuickActionsMenu from "./QuickActionsMenu";
 import FullScreenApp from "./FullScreenApp";
+import ControlCenter from "./ControlCenter";
+import IOSWidgetPanel from "./widgets/IOSWidgetPanel";
 
 interface IOSHomeScreenProps {
   onBootComplete?: () => void;
@@ -16,6 +19,7 @@ interface IOSHomeScreenProps {
 export const IOSHomeScreen = ({ onBootComplete }: IOSHomeScreenProps) => {
   const { effectiveWallpaper } = useWallpaper();
   const { setEditMode } = useHomeScreen();
+  const reducedMotion = usePrefersReducedMotion();
   
   const [activeApp, setActiveApp] = useState<DockItemId | "settings" | null>(null);
   const [launchRect, setLaunchRect] = useState<DOMRect | undefined>();
@@ -23,9 +27,14 @@ export const IOSHomeScreen = ({ onBootComplete }: IOSHomeScreenProps) => {
     app: AppIconType;
     position: { x: number; y: number };
   } | null>(null);
+  const [isControlCenterOpen, setIsControlCenterOpen] = useState(false);
+  const [showWidgets, setShowWidgets] = useState(true);
+
+  // Store icon ref for close animation
+  const iconRefs = useRef<Map<string, DOMRect>>(new Map());
 
   // Handle app tap
-  const handleAppTap = useCallback((id: string) => {
+  const handleAppTap = useCallback((id: string, rect?: DOMRect) => {
     // Handle external links
     if (id === "github") {
       window.open("https://github.com", "_blank");
@@ -36,12 +45,16 @@ export const IOSHomeScreen = ({ onBootComplete }: IOSHomeScreenProps) => {
       return;
     }
 
+    if (rect) {
+      iconRefs.current.set(id, rect);
+      setLaunchRect(rect);
+    }
     setActiveApp(id as DockItemId | "settings");
   }, []);
 
   // Handle long press
   const handleLongPress = useCallback((app: AppIconType, rect: DOMRect) => {
-    // Haptic feedback would go here on real device
+    iconRefs.current.set(app.id, rect);
     setLaunchRect(rect);
     setQuickActionsMenu({
       app,
@@ -51,8 +64,10 @@ export const IOSHomeScreen = ({ onBootComplete }: IOSHomeScreenProps) => {
 
   // Handle quick action
   const handleQuickAction = useCallback((appId: string, actionId: string) => {
-    // Open the app - in a real app you'd handle specific actions
+    const rect = iconRefs.current.get(appId);
+    if (rect) setLaunchRect(rect);
     setActiveApp(appId as DockItemId | "settings");
+    setQuickActionsMenu(null);
   }, []);
 
   // Close active app
@@ -66,6 +81,11 @@ export const IOSHomeScreen = ({ onBootComplete }: IOSHomeScreenProps) => {
     setEditMode(true);
     setQuickActionsMenu(null);
   }, [setEditMode]);
+
+  // Control center
+  const handleOpenControlCenter = useCallback(() => {
+    setIsControlCenterOpen(true);
+  }, []);
 
   // Wallpaper background style
   const backgroundStyle =
@@ -81,11 +101,21 @@ export const IOSHomeScreen = ({ onBootComplete }: IOSHomeScreenProps) => {
 
   return (
     <div
-      className={cn("fixed inset-0 flex flex-col overflow-hidden")}
+      className={cn("fixed inset-0 flex flex-col overflow-hidden ios-home-screen")}
       style={backgroundStyle}
     >
+      {/* Frosted wallpaper overlay */}
+      <div className="absolute inset-0 ios-wallpaper-blur pointer-events-none" />
+      
       {/* Status Bar */}
-      <IOSStatusBar />
+      <IOSStatusBar onSwipeDown={handleOpenControlCenter} />
+
+      {/* Widgets Panel */}
+      {showWidgets && (
+        <div className="pt-14">
+          <IOSWidgetPanel onProjectsTap={() => handleAppTap("projects")} />
+        </div>
+      )}
 
       {/* App Grid */}
       <AppGrid onAppTap={handleAppTap} onLongPress={handleLongPress} />
@@ -103,6 +133,12 @@ export const IOSHomeScreen = ({ onBootComplete }: IOSHomeScreenProps) => {
           onEnterEditMode={handleEnterEditMode}
         />
       )}
+
+      {/* Control Center */}
+      <ControlCenter
+        isOpen={isControlCenterOpen}
+        onClose={() => setIsControlCenterOpen(false)}
+      />
 
       {/* Full Screen App */}
       {activeApp && (
