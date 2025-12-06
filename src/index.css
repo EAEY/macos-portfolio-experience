@@ -428,3 +428,74 @@ html.font-large {
 .animate-window-open {
   animation: window-open 0.25s var(--motion-smooth) forwards;
 }
+
+/* iOS Home Screen Animations */
+@keyframes wiggle {
+  0%, 100% {
+    transform: rotate(-1.5deg);
+  }
+  50% {
+    transform: rotate(1.5deg);
+  }
+}
+
+@keyframes app-launch {
+  0% {
+    transform: translate(var(--launch-x, 0), var(--launch-y, 0)) scale(0.2);
+    opacity: 0;
+    border-radius: 24px;
+  }
+  50% {
+    opacity: 1;
+    border-radius: 12px;
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+    border-radius: 0;
+  }
+}
+
+@keyframes app-close {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--launch-x, 0), var(--launch-y, 0)) scale(0.2);
+    opacity: 0;
+  }
+}
+
+@keyframes scale-in {
+  0% {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-wiggle {
+  animation: wiggle 0.15s ease-in-out infinite;
+}
+
+.animate-app-launch {
+  animation: app-launch 0.35s var(--motion-smooth) forwards;
+}
+
+.animate-app-close {
+  animation: app-close 0.3s var(--motion-smooth) forwards;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.2s var(--motion-smooth) forwards;
+}
+
+/* Touch manipulation for iOS feel */
+.touch-manipulation {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
