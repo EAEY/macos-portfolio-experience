@@ -62,24 +62,52 @@ export const Window = ({
 
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
-  const [minimizeTarget, setMinimizeTarget] = useState<{ x: number; y: number } | null>(null);
+  const [isMinimizing, setIsMinimizing] = useState(false);
+  const [isRestoring, setIsRestoring] = useState(false);
+  const [genieTarget, setGenieTarget] = useState<{ x: number; y: number } | null>(null);
   const dragStart = useRef({ x: 0, y: 0, windowX: 0, windowY: 0 });
   const resizeStart = useRef({ x: 0, y: 0, width: 0, height: 0 });
 
   // Save state to localStorage
   useEffect(() => {
-    if (!isMinimized) {
+    if (!isMinimized && !isMinimizing) {
       localStorage.setItem(`window_${id}`, JSON.stringify(state));
     }
-  }, [id, state, isMinimized]);
+  }, [id, state, isMinimized, isMinimizing]);
 
-  // Get minimize target position from dock icon
+  // Get genie target position from dock icon
   useEffect(() => {
-    if (isMinimized && dockIconRef?.current) {
+    if (dockIconRef?.current) {
       const rect = dockIconRef.current.getBoundingClientRect();
-      setMinimizeTarget({ x: rect.left + rect.width / 2, y: rect.top });
+      setGenieTarget({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
     }
-  }, [isMinimized, dockIconRef]);
+  }, [dockIconRef]);
+
+  // Handle minimize with genie effect
+  const handleMinimizeWithGenie = useCallback(() => {
+    setIsMinimizing(true);
+    setTimeout(() => {
+      setIsMinimizing(false);
+      onMinimize();
+    }, 400); // Match animation duration
+  }, [onMinimize]);
+
+  // Handle restore with genie effect
+  useEffect(() => {
+    if (!isMinimized && isRestoring) {
+      const timer = setTimeout(() => setIsRestoring(false), 400);
+      return () => clearTimeout(timer);
+    }
+  }, [isMinimized, isRestoring]);
+
+  // Detect when window is being restored
+  const prevMinimized = useRef(isMinimized);
+  useEffect(() => {
+    if (prevMinimized.current && !isMinimized) {
+      setIsRestoring(true);
+    }
+    prevMinimized.current = isMinimized;
+  }, [isMinimized]);
 
   // Dragging handlers
   const handleDragStart = useCallback(
@@ -106,7 +134,7 @@ export const Window = ({
       setState((prev) => ({
         ...prev,
         x: dragStart.current.windowX + deltaX,
-        y: Math.max(28, dragStart.current.windowY + deltaY), // Keep below menu bar
+        y: Math.max(28, dragStart.current.windowY + deltaY),
       }));
     },
     [isDragging]
@@ -188,16 +216,17 @@ export const Window = ({
     handleMaximize();
   }, [handleMaximize]);
 
-  if (isMinimized) {
+  // Don't render if minimized (after animation completes)
+  if (isMinimized && !isMinimizing) {
     return null;
   }
 
   const windowStyle = state.isMaximized
     ? {
         left: 0,
-        top: 28, // Below menu bar
+        top: 28,
         width: "100%",
-        height: "calc(100vh - 28px - 80px)", // Full height minus menu bar and dock
+        height: "calc(100vh - 28px - 80px)",
         zIndex,
       }
     : {
@@ -208,6 +237,17 @@ export const Window = ({
         zIndex,
       };
 
+  // Calculate genie animation styles
+  const genieStyle = isMinimizing && genieTarget ? {
+    "--genie-target-x": `${genieTarget.x - state.x - state.width / 2}px`,
+    "--genie-target-y": `${genieTarget.y - state.y - state.height / 2}px`,
+  } as React.CSSProperties : {};
+
+  const restoreStyle = isRestoring && genieTarget ? {
+    "--genie-start-x": `${genieTarget.x - state.x - state.width / 2}px`,
+    "--genie-start-y": `${genieTarget.y - state.y - state.height / 2}px`,
+  } as React.CSSProperties : {};
+
   return (
     <div
       ref={windowRef}
@@ -217,9 +257,11 @@ export const Window = ({
         "shadow-window transition-shadow duration-200",
         isActive && "shadow-window-active ring-1 ring-macos-accent-blue/30",
         state.isMaximized && "rounded-none",
-        "animate-window-open"
+        !isMinimizing && !isRestoring && "animate-window-open",
+        isMinimizing && "animate-genie-minimize",
+        isRestoring && "animate-genie-restore"
       )}
-      style={windowStyle}
+      style={{ ...windowStyle, ...genieStyle, ...restoreStyle }}
       onClick={onFocus}
       role="dialog"
       aria-label={title}
@@ -257,7 +299,7 @@ export const Window = ({
           <button
             onClick={(e) => {
               e.stopPropagation();
-              onMinimize();
+              handleMinimizeWithGenie();
             }}
             className={cn(
               "w-3 h-3 rounded-full transition-all duration-150",
