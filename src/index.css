@@ -362,3 +362,69 @@ html.font-medium {
 html.font-large {
   --base-font-size: 18px;
 }
+
+/* Genie Effect Animations */
+@keyframes genie-minimize {
+  0% {
+    transform: scale(1) translateX(0) translateY(0);
+    opacity: 1;
+    transform-origin: bottom center;
+  }
+  30% {
+    transform: scale(0.8, 0.9) translateX(0) translateY(20px);
+    opacity: 1;
+  }
+  60% {
+    transform: scale(0.4, 0.6) translateX(calc(var(--genie-target-x) * 0.5)) translateY(calc(var(--genie-target-y) * 0.5));
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(0.05) translateX(var(--genie-target-x)) translateY(var(--genie-target-y));
+    opacity: 0;
+    transform-origin: bottom center;
+  }
+}
+
+@keyframes genie-restore {
+  0% {
+    transform: scale(0.05) translateX(var(--genie-start-x)) translateY(var(--genie-start-y));
+    opacity: 0;
+    transform-origin: bottom center;
+  }
+  40% {
+    transform: scale(0.4, 0.6) translateX(calc(var(--genie-start-x) * 0.5)) translateY(calc(var(--genie-start-y) * 0.5));
+    opacity: 0.8;
+  }
+  70% {
+    transform: scale(0.8, 0.9) translateX(0) translateY(20px);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) translateX(0) translateY(0);
+    opacity: 1;
+    transform-origin: bottom center;
+  }
+}
+
+@keyframes window-open {
+  0% {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-genie-minimize {
+  animation: genie-minimize 0.4s var(--motion-smooth) forwards;
+}
+
+.animate-genie-restore {
+  animation: genie-restore 0.4s var(--motion-smooth) forwards;
+}
+
+.animate-window-open {
+  animation: window-open 0.25s var(--motion-smooth) forwards;
+}

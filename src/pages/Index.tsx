@@ -91,6 +91,20 @@ const Index = () => {
     setActiveWindow((prev) => (prev === id ? null : prev));
   }, []);
 
+  // Close active window (for menu bar)
+  const handleCloseActiveWindow = useCallback(() => {
+    if (activeWindow) {
+      handleCloseWindow(activeWindow);
+    }
+  }, [activeWindow, handleCloseWindow]);
+
+  // Minimize active window (for menu bar)
+  const handleMinimizeActiveWindow = useCallback(() => {
+    if (activeWindow) {
+      handleMinimizeWindow(activeWindow);
+    }
+  }, [activeWindow, handleMinimizeWindow]);
+
   const handleFocusWindow = useCallback((id: DockItemId) => {
     setActiveWindow(id);
   }, []);
@@ -182,6 +196,9 @@ const Index = () => {
       <MenuBar
         activeWindowTitle={activeWindowTitle}
         onSpotlightOpen={handleSpotlightOpen}
+        onOpenWindow={handleOpenWindow}
+        onCloseWindow={handleCloseActiveWindow}
+        onMinimizeWindow={handleMinimizeActiveWindow}
       />
 
       {/* Dock */}

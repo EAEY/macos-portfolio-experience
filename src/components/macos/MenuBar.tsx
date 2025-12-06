@@ -5,14 +5,21 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Wifi, Battery, Search, Clock as ClockIcon, Cloud, Calendar, Cpu, StickyNote, CheckSquare, LucideIcon } from "lucide-react";
+import { Wifi, Battery, Search, Clock as ClockIcon, Cloud, Calendar, Cpu, StickyNote, CheckSquare, LucideIcon, RotateCcw, Settings, Info, Eye, EyeOff, Layout, Columns, Maximize, PanelLeft, Copy, Scissors, Clipboard, Trash2, FileText, FolderOpen, Save, Download, Upload } from "lucide-react";
 import { useWidgets, WidgetType } from "@/contexts/WidgetContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import { DockItemId } from "./Dock";
 
 interface MenuBarProps {
   activeWindowTitle?: string;
   onSpotlightOpen: () => void;
+  onOpenWindow?: (id: DockItemId) => void;
+  onCloseWindow?: () => void;
+  onMinimizeWindow?: () => void;
 }
 
 const AppleMenuIcon = () => (
@@ -66,7 +73,7 @@ const WIDGET_TYPES: { type: WidgetType; label: string; icon: LucideIcon }[] = [
   { type: "reminders", label: "Reminders", icon: CheckSquare },
 ];
 
-export const MenuBar = ({ activeWindowTitle, onSpotlightOpen }: MenuBarProps) => {
+export const MenuBar = ({ activeWindowTitle, onSpotlightOpen, onOpenWindow, onCloseWindow, onMinimizeWindow }: MenuBarProps) => {
   const { addWidget, showWidgets, setShowWidgets } = useWidgets();
   const { theme, toggleTheme } = useTheme();
 
@@ -91,6 +98,7 @@ export const MenuBar = ({ activeWindowTitle, onSpotlightOpen }: MenuBarProps) =>
     >
       {/* Left Section - Apple Menu & App Menu */}
       <div className="flex items-center gap-4">
+        {/* Apple Menu */}
         <DropdownMenu>
           <DropdownMenuTrigger
             className="p-1 rounded hover:bg-foreground/10 transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-ring"
@@ -100,21 +108,30 @@ export const MenuBar = ({ activeWindowTitle, onSpotlightOpen }: MenuBarProps) =>
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="start"
-            className="glass min-w-[200px]"
+            className="glass min-w-[220px]"
             sideOffset={4}
           >
-            <DropdownMenuItem className="text-[13px] cursor-pointer">
+            <DropdownMenuItem 
+              className="text-[13px] cursor-pointer flex items-center gap-2"
+              onClick={() => onOpenWindow?.("about")}
+            >
+              <Info className="w-4 h-4" />
               About This Portfolio
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-[13px] cursor-pointer">
+            <DropdownMenuItem 
+              className="text-[13px] cursor-pointer flex items-center gap-2"
+              onClick={() => onOpenWindow?.("settings")}
+            >
+              <Settings className="w-4 h-4" />
               Preferences...
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              className="text-[13px] cursor-pointer"
+              className="text-[13px] cursor-pointer flex items-center gap-2"
               onClick={() => window.location.reload()}
             >
+              <RotateCcw className="w-4 h-4" />
               Reload
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -126,16 +143,123 @@ export const MenuBar = ({ activeWindowTitle, onSpotlightOpen }: MenuBarProps) =>
         </span>
 
         {/* App Menus */}
-        <nav className="hidden md:flex items-center gap-4">
-          <button className="text-[13px] hover:bg-foreground/10 px-2 py-0.5 rounded transition-colors">
-            File
-          </button>
-          <button className="text-[13px] hover:bg-foreground/10 px-2 py-0.5 rounded transition-colors">
-            Edit
-          </button>
-          <button className="text-[13px] hover:bg-foreground/10 px-2 py-0.5 rounded transition-colors">
-            View
-          </button>
+        <nav className="hidden md:flex items-center gap-1">
+          {/* File Menu */}
+          <DropdownMenu>
+            <DropdownMenuTrigger className="text-[13px] hover:bg-foreground/10 px-2 py-0.5 rounded transition-colors focus:outline-none">
+              File
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="glass min-w-[200px]" sideOffset={4}>
+              <DropdownMenuItem className="text-[13px] cursor-pointer flex items-center gap-2" onClick={() => onOpenWindow?.("finder")}>
+                <FolderOpen className="w-4 h-4" />
+                New Finder Window
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="text-[13px] cursor-pointer flex items-center gap-2" onClick={() => onOpenWindow?.("cv")}>
+                <FileText className="w-4 h-4" />
+                Open CV
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="text-[13px] cursor-pointer flex items-center gap-2 text-muted-foreground" disabled>
+                <Save className="w-4 h-4" />
+                Save
+                <span className="ml-auto text-xs">⌘S</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="text-[13px] cursor-pointer flex items-center gap-2 text-muted-foreground" disabled>
+                <Download className="w-4 h-4" />
+                Export...
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem 
+                className="text-[13px] cursor-pointer flex items-center gap-2"
+                onClick={onCloseWindow}
+              >
+                Close Window
+                <span className="ml-auto text-xs">⌘W</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Edit Menu */}
+          <DropdownMenu>
+            <DropdownMenuTrigger className="text-[13px] hover:bg-foreground/10 px-2 py-0.5 rounded transition-colors focus:outline-none">
+              Edit
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="glass min-w-[200px]" sideOffset={4}>
+              <DropdownMenuItem className="text-[13px] cursor-pointer flex items-center gap-2 text-muted-foreground" disabled>
+                Undo
+                <span className="ml-auto text-xs">⌘Z</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="text-[13px] cursor-pointer flex items-center gap-2 text-muted-foreground" disabled>
+                Redo
+                <span className="ml-auto text-xs">⇧⌘Z</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="text-[13px] cursor-pointer flex items-center gap-2" onClick={() => document.execCommand('cut')}>
+                <Scissors className="w-4 h-4" />
+                Cut
+                <span className="ml-auto text-xs">⌘X</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="text-[13px] cursor-pointer flex items-center gap-2" onClick={() => document.execCommand('copy')}>
+                <Copy className="w-4 h-4" />
+                Copy
+                <span className="ml-auto text-xs">⌘C</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="text-[13px] cursor-pointer flex items-center gap-2" onClick={() => document.execCommand('paste')}>
+                <Clipboard className="w-4 h-4" />
+                Paste
+                <span className="ml-auto text-xs">⌘V</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="text-[13px] cursor-pointer flex items-center gap-2" onClick={() => document.execCommand('selectAll')}>
+                Select All
+                <span className="ml-auto text-xs">⌘A</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* View Menu */}
+          <DropdownMenu>
+            <DropdownMenuTrigger className="text-[13px] hover:bg-foreground/10 px-2 py-0.5 rounded transition-colors focus:outline-none">
+              View
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="glass min-w-[200px]" sideOffset={4}>
+              <DropdownMenuItem 
+                className="text-[13px] cursor-pointer flex items-center gap-2"
+                onClick={() => setShowWidgets(!showWidgets)}
+              >
+                {showWidgets ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                {showWidgets ? "Hide Widgets" : "Show Widgets"}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="text-[13px] cursor-pointer flex items-center gap-2" onClick={() => document.documentElement.requestFullscreen?.()}>
+                <Maximize className="w-4 h-4" />
+                Enter Full Screen
+                <span className="ml-auto text-xs">⌃⌘F</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger className="text-[13px] cursor-pointer flex items-center gap-2">
+                  <Layout className="w-4 h-4" />
+                  Appearance
+                </DropdownMenuSubTrigger>
+                <DropdownMenuSubContent className="glass min-w-[150px]">
+                  <DropdownMenuItem 
+                    className="text-[13px] cursor-pointer"
+                    onClick={() => theme !== 'light' && toggleTheme()}
+                  >
+                    {theme === 'light' ? '✓ ' : ''}Light Mode
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    className="text-[13px] cursor-pointer"
+                    onClick={() => theme !== 'dark' && toggleTheme()}
+                  >
+                    {theme === 'dark' ? '✓ ' : ''}Dark Mode
+                  </DropdownMenuItem>
+                </DropdownMenuSubContent>
+              </DropdownMenuSub>
+            </DropdownMenuContent>
+          </DropdownMenu>
           
           {/* Widgets Menu */}
           <DropdownMenu>
@@ -144,9 +268,10 @@ export const MenuBar = ({ activeWindowTitle, onSpotlightOpen }: MenuBarProps) =>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="glass min-w-[180px]" sideOffset={4}>
               <DropdownMenuItem
-                className="text-[13px] cursor-pointer"
+                className="text-[13px] cursor-pointer flex items-center gap-2"
                 onClick={() => setShowWidgets(!showWidgets)}
               >
+                {showWidgets ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 {showWidgets ? "Hide All Widgets" : "Show All Widgets"}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
@@ -163,14 +288,71 @@ export const MenuBar = ({ activeWindowTitle, onSpotlightOpen }: MenuBarProps) =>
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <button className="text-[13px] hover:bg-foreground/10 px-2 py-0.5 rounded transition-colors">
-            Window
-          </button>
+          {/* Window Menu */}
+          <DropdownMenu>
+            <DropdownMenuTrigger className="text-[13px] hover:bg-foreground/10 px-2 py-0.5 rounded transition-colors focus:outline-none">
+              Window
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="glass min-w-[200px]" sideOffset={4}>
+              <DropdownMenuItem 
+                className="text-[13px] cursor-pointer"
+                onClick={onMinimizeWindow}
+              >
+                Minimize
+                <span className="ml-auto text-xs">⌘M</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                className="text-[13px] cursor-pointer"
+                onClick={onCloseWindow}
+              >
+                Close Window
+                <span className="ml-auto text-xs">⌘W</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem 
+                className="text-[13px] cursor-pointer flex items-center gap-2"
+                onClick={() => onOpenWindow?.("about")}
+              >
+                <PanelLeft className="w-4 h-4" />
+                About
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                className="text-[13px] cursor-pointer flex items-center gap-2"
+                onClick={() => onOpenWindow?.("skills")}
+              >
+                <Columns className="w-4 h-4" />
+                Skills
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                className="text-[13px] cursor-pointer flex items-center gap-2"
+                onClick={() => onOpenWindow?.("projects")}
+              >
+                <FolderOpen className="w-4 h-4" />
+                Projects
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                className="text-[13px] cursor-pointer flex items-center gap-2"
+                onClick={() => onOpenWindow?.("experiences")}
+              >
+                <FileText className="w-4 h-4" />
+                Experiences
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                className="text-[13px] cursor-pointer flex items-center gap-2"
+                onClick={() => onOpenWindow?.("contact")}
+              >
+                <Upload className="w-4 h-4" />
+                Contact
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
             className="text-[13px] hover:bg-foreground/10 px-2 py-0.5 rounded transition-colors"
           >
-            {theme === "dark" ? "☀️ Light" : "🌙 Dark"}
+            {theme === "dark" ? "☀️" : "🌙"}
           </button>
         </nav>
       </div>
