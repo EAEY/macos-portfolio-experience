@@ -6,6 +6,9 @@
 
 @layer base {
   :root {
+    /* Base font size - controlled by settings */
+    --base-font-size: 16px;
+    
     /* Desktop colors */
     --desktop-bg: 240 10% 6%;
     --desktop-wallpaper-accent: 220 70% 20%;
@@ -55,6 +58,10 @@
     --motion-smooth: cubic-bezier(0.2, 0.9, 0.2, 1);
     --motion-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
     
+    /* Window glass text - ensures readability */
+    --window-text: 0 0% 95%;
+    --window-text-muted: 0 0% 70%;
+    
     /* Base shadcn tokens - dark theme for macOS */
     --background: 240 10% 6%;
     --foreground: 0 0% 98%;
@@ -101,17 +108,21 @@
     --desktop-bg: 220 20% 96%;
     --desktop-wallpaper-accent: 220 60% 85%;
     
-    /* Glass effect tokens - light mode */
-    --glass-bg: 0 0% 100% / 0.7;
-    --glass-border: 0 0% 0% / 0.08;
-    --glass-highlight: 0 0% 100% / 0.5;
+    /* Glass effect tokens - light mode - more opaque for readability */
+    --glass-bg: 0 0% 100% / 0.85;
+    --glass-border: 0 0% 0% / 0.1;
+    --glass-highlight: 0 0% 100% / 0.6;
+    
+    /* Window glass text - dark for light mode */
+    --window-text: 240 10% 10%;
+    --window-text-muted: 240 5% 35%;
     
     /* Dock - light mode */
-    --dock-bg: 0 0% 100% / 0.7;
+    --dock-bg: 0 0% 100% / 0.8;
     --dock-border: 0 0% 0% / 0.1;
     
     /* Menu bar - light mode */
-    --menubar-bg: 0 0% 100% / 0.7;
+    --menubar-bg: 0 0% 100% / 0.8;
     
     /* Shadows - light mode */
     --shadow-window: 0 25px 50px -12px hsl(0 0% 0% / 0.15);
@@ -119,30 +130,30 @@
     
     /* Base tokens - light theme */
     --background: 0 0% 100%;
-    --foreground: 240 10% 6%;
+    --foreground: 240 10% 10%;
 
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 6%;
+    --card-foreground: 240 10% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 6%;
+    --popover-foreground: 240 10% 10%;
 
     --primary: 211 100% 50%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 220 15% 94%;
-    --secondary-foreground: 240 10% 6%;
+    --secondary-foreground: 240 10% 10%;
 
     --muted: 220 15% 94%;
-    --muted-foreground: 240 5% 40%;
+    --muted-foreground: 240 5% 35%;
 
     --accent: 220 15% 94%;
-    --accent-foreground: 240 10% 6%;
+    --accent-foreground: 240 10% 10%;
 
     --destructive: 0 85% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 0% / 0.08;
+    --border: 0 0% 0% / 0.1;
     --input: 220 15% 94%;
     --ring: 211 100% 50%;
 
@@ -151,7 +162,7 @@
     --sidebar-primary: 211 100% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 220 15% 94%;
-    --sidebar-accent-foreground: 240 10% 6%;
+    --sidebar-accent-foreground: 240 10% 10%;
     --sidebar-border: 0 0% 0% / 0.08;
     --sidebar-ring: 211 100% 50%;
   }
@@ -164,6 +175,7 @@
 
   html {
     @apply scroll-smooth;
+    font-size: var(--base-font-size);
   }
 
   body {
@@ -186,6 +198,7 @@
     -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
     border-radius: var(--radius);
     box-shadow: var(--shadow-window);
+    color: hsl(var(--window-text));
   }
 
   .glass::before {
@@ -199,6 +212,15 @@
       transparent 50%
     );
     border-radius: inherit;
+  }
+
+  /* Glass text classes for readability */
+  .glass-text {
+    color: hsl(var(--window-text));
+  }
+
+  .glass-text-muted {
+    color: hsl(var(--window-text-muted));
   }
 
   /* Dock glass style */
@@ -215,6 +237,7 @@
     background: hsl(var(--menubar-bg));
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
+    color: hsl(var(--window-text));
   }
 }
 
@@ -282,13 +305,17 @@
   --glass-border: 0 0% 100% / 0.25;
   --foreground: 0 0% 100%;
   --muted-foreground: 0 0% 85%;
+  --window-text: 0 0% 100%;
+  --window-text-muted: 0 0% 85%;
 }
 
 .light.high-contrast {
-  --glass-bg: 0 0% 100% / 0.9;
-  --glass-border: 0 0% 0% / 0.2;
+  --glass-bg: 0 0% 100% / 0.95;
+  --glass-border: 0 0% 0% / 0.25;
   --foreground: 0 0% 0%;
-  --muted-foreground: 0 0% 25%;
+  --muted-foreground: 0 0% 20%;
+  --window-text: 0 0% 0%;
+  --window-text-muted: 0 0% 20%;
 }
 
 /* Focus visible styles for accessibility */
@@ -311,7 +338,7 @@
 
 /* Theme transition on html element */
 html {
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, font-size 0.2s ease;
 }
 
 html.dark,
@@ -321,4 +348,17 @@ html.light {
 
 .skip-link:focus {
   top: 0;
+}
+
+/* Font size variants for accessibility */
+html.font-small {
+  --base-font-size: 14px;
+}
+
+html.font-medium {
+  --base-font-size: 16px;
+}
+
+html.font-large {
+  --base-font-size: 18px;
 }

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Palette, Accessibility, RotateCcw, Sun, Moon, Image } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/contexts/ThemeContext";
-import { useWallpaper, WALLPAPERS } from "@/contexts/WallpaperContext";
+import { useWallpaper, WALLPAPERS, THEME_WALLPAPERS } from "@/contexts/WallpaperContext";
 
 interface SettingsState {
   accentColor: string;
@@ -70,15 +70,29 @@ export const SettingsWindow = () => {
       document.documentElement.classList.remove("high-contrast");
     }
 
-    // Apply font size
-    const fontSizes = { small: "14px", medium: "16px", large: "18px" };
-    document.documentElement.style.setProperty("--base-font-size", fontSizes[settings.fontSize]);
+    // Apply font size via class
+    document.documentElement.classList.remove("font-small", "font-medium", "font-large");
+    document.documentElement.classList.add(`font-${settings.fontSize}`);
   }, [settings]);
 
   const handleReset = () => {
     setSettings(DEFAULT_SETTINGS);
     setTheme("dark");
-    setWallpaper("default");
+    setWallpaper("auto");
+  };
+
+  // Get wallpaper preview style
+  const getWallpaperStyle = (wallpaper: typeof WALLPAPERS[0]) => {
+    if (wallpaper.id === "auto") {
+      // Show the current theme's wallpaper as preview
+      const themeWallpaper = THEME_WALLPAPERS[theme];
+      return themeWallpaper.type === "image" 
+        ? { backgroundImage: `url(${themeWallpaper.value})`, backgroundSize: "cover", backgroundPosition: "center" }
+        : { background: themeWallpaper.value };
+    }
+    return wallpaper.type === "image" 
+      ? { backgroundImage: `url(${wallpaper.value})`, backgroundSize: "cover", backgroundPosition: "center" }
+      : { background: wallpaper.value };
   };
 
   const tabs = [
@@ -88,7 +102,7 @@ export const SettingsWindow = () => {
   ];
 
   return (
-    <div className="flex flex-col sm:flex-row h-full">
+    <div className="flex flex-col sm:flex-row h-full text-foreground">
       {/* Sidebar */}
       <nav
         className="sm:w-48 border-b sm:border-b-0 sm:border-r border-border/50 p-2 sm:p-3 flex sm:flex-col gap-1 overflow-x-auto sm:overflow-x-visible"
@@ -131,7 +145,7 @@ export const SettingsWindow = () => {
                 <Palette className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <h2 className="text-lg font-semibold">Appearance</h2>
+                <h2 className="text-lg font-semibold text-foreground">Appearance</h2>
                 <p className="text-sm text-muted-foreground">
                   Customize how the portfolio looks
                 </p>
@@ -140,7 +154,7 @@ export const SettingsWindow = () => {
 
             {/* Theme Toggle */}
             <div className="space-y-3">
-              <label className="text-sm font-medium">Theme</label>
+              <label className="text-sm font-medium text-foreground">Theme</label>
               <div className="flex gap-3" role="radiogroup" aria-label="Theme">
                 <button
                   role="radio"
@@ -150,8 +164,8 @@ export const SettingsWindow = () => {
                     "flex items-center gap-2 px-4 py-3 rounded-lg border transition-all",
                     "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                     theme === "light"
-                      ? "border-primary bg-primary/10"
-                      : "border-border bg-secondary/50 hover:bg-secondary"
+                      ? "border-primary bg-primary/10 text-foreground"
+                      : "border-border bg-secondary/50 hover:bg-secondary text-foreground"
                   )}
                 >
                   <Sun className="w-5 h-5" />
@@ -165,8 +179,8 @@ export const SettingsWindow = () => {
                     "flex items-center gap-2 px-4 py-3 rounded-lg border transition-all",
                     "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                     theme === "dark"
-                      ? "border-primary bg-primary/10"
-                      : "border-border bg-secondary/50 hover:bg-secondary"
+                      ? "border-primary bg-primary/10 text-foreground"
+                      : "border-border bg-secondary/50 hover:bg-secondary text-foreground"
                   )}
                 >
                   <Moon className="w-5 h-5" />
@@ -177,7 +191,7 @@ export const SettingsWindow = () => {
 
             {/* Accent Color */}
             <div className="space-y-3">
-              <label className="text-sm font-medium">Accent Color</label>
+              <label className="text-sm font-medium text-foreground">Accent Color</label>
               <div className="flex flex-wrap gap-3" role="radiogroup" aria-label="Accent color">
                 {ACCENT_COLORS.map((color) => (
                   <button
@@ -214,7 +228,7 @@ export const SettingsWindow = () => {
                 <Image className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <h2 className="text-lg font-semibold">Wallpaper</h2>
+                <h2 className="text-lg font-semibold text-foreground">Wallpaper</h2>
                 <p className="text-sm text-muted-foreground">
                   Choose your desktop wallpaper
                 </p>
@@ -238,11 +252,16 @@ export const SettingsWindow = () => {
                 >
                   <div
                     className="absolute inset-0"
-                    style={{ background: wallpaper.value }}
+                    style={getWallpaperStyle(wallpaper)}
                   />
                   <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent">
                     <span className="text-xs text-white font-medium">{wallpaper.name}</span>
                   </div>
+                  {wallpaper.id === "auto" && (
+                    <div className="absolute top-1 right-1 px-1.5 py-0.5 bg-primary/80 rounded text-[10px] text-white font-medium">
+                      Auto
+                    </div>
+                  )}
                 </button>
               ))}
             </div>
@@ -262,7 +281,7 @@ export const SettingsWindow = () => {
                 <Accessibility className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <h2 className="text-lg font-semibold">Accessibility</h2>
+                <h2 className="text-lg font-semibold text-foreground">Accessibility</h2>
                 <p className="text-sm text-muted-foreground">
                   Make the portfolio easier to use
                 </p>
@@ -272,7 +291,7 @@ export const SettingsWindow = () => {
             {/* Reduced Motion */}
             <div className="flex items-center justify-between p-4 rounded-lg bg-secondary/30">
               <div className="space-y-0.5">
-                <label htmlFor="reduced-motion" className="text-sm font-medium">
+                <label htmlFor="reduced-motion" className="text-sm font-medium text-foreground">
                   Reduce Motion
                 </label>
                 <p className="text-xs text-muted-foreground">
@@ -304,7 +323,7 @@ export const SettingsWindow = () => {
             {/* High Contrast */}
             <div className="flex items-center justify-between p-4 rounded-lg bg-secondary/30">
               <div className="space-y-0.5">
-                <label htmlFor="high-contrast" className="text-sm font-medium">
+                <label htmlFor="high-contrast" className="text-sm font-medium text-foreground">
                   High Contrast
                 </label>
                 <p className="text-xs text-muted-foreground">
@@ -335,7 +354,7 @@ export const SettingsWindow = () => {
 
             {/* Font Size */}
             <div className="space-y-3">
-              <label className="text-sm font-medium">Text Size</label>
+              <label className="text-sm font-medium text-foreground">Text Size</label>
               <div className="flex gap-2" role="radiogroup" aria-label="Text size">
                 {(["small", "medium", "large"] as const).map((size) => (
                   <button
@@ -348,13 +367,16 @@ export const SettingsWindow = () => {
                       "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                       settings.fontSize === size
                         ? "bg-primary text-primary-foreground"
-                        : "bg-secondary hover:bg-secondary/80"
+                        : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
                     )}
                   >
                     {size}
                   </button>
                 ))}
               </div>
+              <p className="text-xs text-muted-foreground">
+                Current: {settings.fontSize === "small" ? "14px" : settings.fontSize === "medium" ? "16px" : "18px"}
+              </p>
             </div>
           </div>
         )}
