@@ -5,9 +5,8 @@ import MenuBar from "@/components/macos/MenuBar";
 import Dock, { DockItemId } from "@/components/macos/Dock";
 import SpotlightSearch from "@/components/macos/SpotlightSearch";
 import WindowManager from "@/components/macos/WindowManager";
-import MobileNav from "@/components/macos/MobileNav";
-import MobileContent from "@/components/macos/MobileContent";
 import WidgetGrid from "@/components/macos/widgets/WidgetGrid";
+import IOSHomeScreen from "@/components/ios/IOSHomeScreen";
 import { useIsMobile } from "@/hooks/use-media-query";
 
 const windowTitles: Record<DockItemId, string> = {
@@ -117,46 +116,15 @@ const Index = () => {
     setIsSpotlightOpen(false);
   }, []);
 
-  // Mobile handlers
-  const handleMobileItemClick = useCallback((id: DockItemId | "settings") => {
-    if (id === "github") {
-      window.open("https://github.com", "_blank");
-      return;
-    }
-    if (id === "linkedin") {
-      window.open("https://linkedin.com", "_blank");
-      return;
-    }
-    setActiveWindow(id as DockItemId);
-  }, []);
-
-  const handleMobileClose = useCallback(() => {
-    setActiveWindow(null);
-  }, []);
-
   const activeWindowTitle = activeWindow ? windowTitles[activeWindow] : undefined;
 
-  // Mobile Layout
+  // Mobile Layout - iOS Home Screen
   if (isMobile) {
     return (
-      <div className="fixed inset-0 flex flex-col bg-background overflow-hidden">
-        {/* Boot Screen */}
+      <>
         {isBooting && <BootScreen onComplete={handleBootComplete} />}
-
-        {/* Mobile Navigation */}
-        <MobileNav
-          onItemClick={handleMobileItemClick}
-          activeWindow={activeWindow}
-        />
-
-        {/* Content Area - Fully scrollable */}
-        <main className="flex-1 flex flex-col min-h-0 pt-14 pb-16">
-          <MobileContent
-            activeSection={activeWindow}
-            onClose={handleMobileClose}
-          />
-        </main>
-      </div>
+        {!isBooting && <IOSHomeScreen />}
+      </>
     );
   }
 
