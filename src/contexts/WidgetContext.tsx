@@ -20,6 +20,7 @@ interface WidgetContextType {
   toggleWidgetMinimize: (id: string) => void;
   showWidgets: boolean;
   setShowWidgets: (show: boolean) => void;
+  resizeWidget: (id: string, size: "small" | "medium" | "large") => void;
 }
 
 const WidgetContext = createContext<WidgetContextType | undefined>(undefined);
@@ -30,14 +31,27 @@ const GRID_SIZE = 20;
 // Snap position to grid
 const snapToGrid = (value: number): number => Math.round(value / GRID_SIZE) * GRID_SIZE;
 
-// Get initial position for new widget
-const getInitialPosition = (existingWidgets: WidgetState[]): { x: number; y: number } => {
-  const baseX = 50;
-  const baseY = 80;
-  const offset = existingWidgets.length * 30;
+// Get initial position for new widget - cascade them nicely
+const getInitialPosition = (existingWidgets: WidgetState[], type: WidgetType): { x: number; y: number } => {
+  // Different starting positions for different widget types
+  const typeOffsets: Record<WidgetType, { x: number; y: number }> = {
+    clock: { x: 40, y: 60 },
+    weather: { x: 280, y: 60 },
+    calendar: { x: 40, y: 320 },
+    system: { x: 520, y: 60 },
+    notes: { x: 280, y: 320 },
+    reminders: { x: 520, y: 320 },
+  };
+
+  const basePosition = typeOffsets[type] || { x: 50, y: 80 };
+  
+  // Check if position is occupied
+  const sameTypeWidgets = existingWidgets.filter(w => w.type === type);
+  const offset = sameTypeWidgets.length * 40;
+
   return {
-    x: snapToGrid(baseX + offset),
-    y: snapToGrid(baseY + offset),
+    x: snapToGrid(basePosition.x + offset),
+    y: snapToGrid(basePosition.y + offset),
   };
 };
 
@@ -63,20 +77,22 @@ export function WidgetProvider({ children }: { children: ReactNode }) {
 
   const addWidget = useCallback((type: WidgetType) => {
     const id = `${type}-${Date.now()}`;
-    const position = getInitialPosition(widgets);
     
-    setWidgets((prev) => [
-      ...prev,
-      {
-        id,
-        type,
-        position,
-        size: "medium",
-        isPinned: false,
-        isMinimized: false,
-      },
-    ]);
-  }, [widgets]);
+    setWidgets((prev) => {
+      const position = getInitialPosition(prev, type);
+      return [
+        ...prev,
+        {
+          id,
+          type,
+          position,
+          size: "medium" as const,
+          isPinned: false,
+          isMinimized: false,
+        },
+      ];
+    });
+  }, []);
 
   const removeWidget = useCallback((id: string) => {
     setWidgets((prev) => prev.filter((w) => w.id !== id));
@@ -110,6 +126,12 @@ export function WidgetProvider({ children }: { children: ReactNode }) {
     );
   }, []);
 
+  const resizeWidget = useCallback((id: string, size: "small" | "medium" | "large") => {
+    setWidgets((prev) =>
+      prev.map((w) => (w.id === id ? { ...w, size } : w))
+    );
+  }, []);
+
   return (
     <WidgetContext.Provider
       value={{
@@ -121,6 +143,7 @@ export function WidgetProvider({ children }: { children: ReactNode }) {
         toggleWidgetMinimize,
         showWidgets,
         setShowWidgets,
+        resizeWidget,
       }}
     >
       {children}

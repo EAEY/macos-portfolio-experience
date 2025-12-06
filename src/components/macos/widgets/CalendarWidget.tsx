@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 const MONTHS = [
@@ -25,6 +26,10 @@ export const CalendarWidget = () => {
     setCurrentDate(new Date(year, month + 1, 1));
   };
 
+  const goToToday = () => {
+    setCurrentDate(new Date());
+  };
+
   const isToday = (day: number) => {
     return (
       day === today.getDate() &&
@@ -33,11 +38,13 @@ export const CalendarWidget = () => {
     );
   };
 
+  const isCurrentMonth = month === today.getMonth() && year === today.getFullYear();
+
   const days = [];
   
   // Empty cells for days before first day of month
   for (let i = 0; i < firstDayOfMonth; i++) {
-    days.push(<div key={`empty-${i}`} className="w-6 h-6" />);
+    days.push(<div key={`empty-${i}`} className="w-5 h-5" />);
   }
   
   // Days of the month
@@ -45,11 +52,12 @@ export const CalendarWidget = () => {
     days.push(
       <button
         key={day}
-        className={`w-6 h-6 text-[11px] rounded-full flex items-center justify-center transition-colors ${
+        className={cn(
+          "w-5 h-5 text-[10px] rounded-full flex items-center justify-center transition-all",
           isToday(day)
-            ? "bg-primary text-primary-foreground font-semibold"
+            ? "bg-primary text-primary-foreground font-bold shadow-sm"
             : "hover:bg-foreground/10"
-        }`}
+        )}
       >
         {day}
       </button>
@@ -59,32 +67,40 @@ export const CalendarWidget = () => {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-2">
         <button
           onClick={prevMonth}
-          className="p-1 rounded hover:bg-foreground/10 transition-colors"
+          className="p-0.5 rounded hover:bg-foreground/10 transition-colors"
           aria-label="Previous month"
         >
-          <ChevronLeft className="w-4 h-4" />
+          <ChevronLeft className="w-3.5 h-3.5" />
         </button>
-        <span className="text-sm font-medium">
+        <button
+          onClick={goToToday}
+          className={cn(
+            "text-[11px] font-medium px-2 py-0.5 rounded transition-colors",
+            isCurrentMonth 
+              ? "text-foreground" 
+              : "text-primary hover:bg-primary/10"
+          )}
+        >
           {MONTHS[month]} {year}
-        </span>
+        </button>
         <button
           onClick={nextMonth}
-          className="p-1 rounded hover:bg-foreground/10 transition-colors"
+          className="p-0.5 rounded hover:bg-foreground/10 transition-colors"
           aria-label="Next month"
         >
-          <ChevronRight className="w-4 h-4" />
+          <ChevronRight className="w-3.5 h-3.5" />
         </button>
       </div>
 
       {/* Day headers */}
-      <div className="grid grid-cols-7 gap-1 mb-1">
+      <div className="grid grid-cols-7 gap-0.5 mb-1">
         {DAYS.map((day) => (
           <div
             key={day}
-            className="w-6 h-5 text-[10px] text-muted-foreground text-center"
+            className="w-5 h-4 text-[9px] text-muted-foreground text-center font-medium"
           >
             {day}
           </div>
@@ -92,7 +108,7 @@ export const CalendarWidget = () => {
       </div>
 
       {/* Calendar grid */}
-      <div className="grid grid-cols-7 gap-1 flex-1">
+      <div className="grid grid-cols-7 gap-0.5 flex-1 content-start">
         {days}
       </div>
     </div>
