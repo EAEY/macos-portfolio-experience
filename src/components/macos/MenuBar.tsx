@@ -6,7 +6,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Wifi, Battery, Search } from "lucide-react";
+import { Wifi, Battery, Search, Clock as ClockIcon, Cloud, Calendar, Cpu, StickyNote, CheckSquare, LucideIcon } from "lucide-react";
+import { useWidgets, WidgetType } from "@/contexts/WidgetContext";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface MenuBarProps {
   activeWindowTitle?: string;
@@ -55,7 +57,19 @@ const Clock = () => {
   );
 };
 
+const WIDGET_TYPES: { type: WidgetType; label: string; icon: LucideIcon }[] = [
+  { type: "clock", label: "Clock", icon: ClockIcon },
+  { type: "weather", label: "Weather", icon: Cloud },
+  { type: "calendar", label: "Calendar", icon: Calendar },
+  { type: "system", label: "System Status", icon: Cpu },
+  { type: "notes", label: "Notes", icon: StickyNote },
+  { type: "reminders", label: "Reminders", icon: CheckSquare },
+];
+
 export const MenuBar = ({ activeWindowTitle, onSpotlightOpen }: MenuBarProps) => {
+  const { addWidget, showWidgets, setShowWidgets } = useWidgets();
+  const { theme, toggleTheme } = useTheme();
+
   // Handle keyboard shortcut for Spotlight
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -122,11 +136,41 @@ export const MenuBar = ({ activeWindowTitle, onSpotlightOpen }: MenuBarProps) =>
           <button className="text-[13px] hover:bg-foreground/10 px-2 py-0.5 rounded transition-colors">
             View
           </button>
+          
+          {/* Widgets Menu */}
+          <DropdownMenu>
+            <DropdownMenuTrigger className="text-[13px] hover:bg-foreground/10 px-2 py-0.5 rounded transition-colors focus:outline-none">
+              Widgets
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="glass min-w-[180px]" sideOffset={4}>
+              <DropdownMenuItem
+                className="text-[13px] cursor-pointer"
+                onClick={() => setShowWidgets(!showWidgets)}
+              >
+                {showWidgets ? "Hide All Widgets" : "Show All Widgets"}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              {WIDGET_TYPES.map(({ type, label, icon: Icon }) => (
+                <DropdownMenuItem
+                  key={type}
+                  className="text-[13px] cursor-pointer flex items-center gap-2"
+                  onClick={() => addWidget(type)}
+                >
+                  <Icon className="w-4 h-4" />
+                  Add {label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           <button className="text-[13px] hover:bg-foreground/10 px-2 py-0.5 rounded transition-colors">
             Window
           </button>
-          <button className="text-[13px] hover:bg-foreground/10 px-2 py-0.5 rounded transition-colors">
-            Help
+          <button
+            onClick={toggleTheme}
+            className="text-[13px] hover:bg-foreground/10 px-2 py-0.5 rounded transition-colors"
+          >
+            {theme === "dark" ? "☀️ Light" : "🌙 Dark"}
           </button>
         </nav>
       </div>
