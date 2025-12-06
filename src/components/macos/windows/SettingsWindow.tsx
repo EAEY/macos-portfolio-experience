@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
-import { Settings, Palette, Monitor, Accessibility, RotateCcw } from "lucide-react";
+import { Palette, Accessibility, RotateCcw, Sun, Moon, Image } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTheme } from "@/contexts/ThemeContext";
+import { useWallpaper, WALLPAPERS } from "@/contexts/WallpaperContext";
 
 interface SettingsState {
   accentColor: string;
@@ -28,6 +30,9 @@ const DEFAULT_SETTINGS: SettingsState = {
 const STORAGE_KEY = "mac_portfolio.settings";
 
 export const SettingsWindow = () => {
+  const { theme, setTheme } = useTheme();
+  const { currentWallpaper, setWallpaper, wallpapers } = useWallpaper();
+  
   const [settings, setSettings] = useState<SettingsState>(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
@@ -40,7 +45,7 @@ export const SettingsWindow = () => {
     return DEFAULT_SETTINGS;
   });
 
-  const [activeTab, setActiveTab] = useState<"appearance" | "accessibility">("appearance");
+  const [activeTab, setActiveTab] = useState<"appearance" | "wallpaper" | "accessibility">("appearance");
 
   // Apply settings
   useEffect(() => {
@@ -72,18 +77,21 @@ export const SettingsWindow = () => {
 
   const handleReset = () => {
     setSettings(DEFAULT_SETTINGS);
+    setTheme("dark");
+    setWallpaper("default");
   };
 
   const tabs = [
     { id: "appearance" as const, label: "Appearance", icon: Palette },
+    { id: "wallpaper" as const, label: "Wallpaper", icon: Image },
     { id: "accessibility" as const, label: "Accessibility", icon: Accessibility },
   ];
 
   return (
-    <div className="flex h-full">
+    <div className="flex flex-col sm:flex-row h-full">
       {/* Sidebar */}
       <nav
-        className="w-48 border-r border-border/50 p-3 space-y-1"
+        className="sm:w-48 border-b sm:border-b-0 sm:border-r border-border/50 p-2 sm:p-3 flex sm:flex-col gap-1 overflow-x-auto sm:overflow-x-visible"
         role="tablist"
         aria-label="Settings categories"
       >
@@ -95,7 +103,7 @@ export const SettingsWindow = () => {
             aria-controls={`${tab.id}-panel`}
             onClick={() => setActiveTab(tab.id)}
             className={cn(
-              "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors",
+              "flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors whitespace-nowrap",
               "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
               activeTab === tab.id
                 ? "bg-primary/20 text-primary"
@@ -109,7 +117,7 @@ export const SettingsWindow = () => {
       </nav>
 
       {/* Content */}
-      <div className="flex-1 p-6 overflow-auto">
+      <div className="flex-1 p-4 sm:p-6 overflow-auto">
         {/* Appearance Tab */}
         {activeTab === "appearance" && (
           <div
@@ -127,6 +135,43 @@ export const SettingsWindow = () => {
                 <p className="text-sm text-muted-foreground">
                   Customize how the portfolio looks
                 </p>
+              </div>
+            </div>
+
+            {/* Theme Toggle */}
+            <div className="space-y-3">
+              <label className="text-sm font-medium">Theme</label>
+              <div className="flex gap-3" role="radiogroup" aria-label="Theme">
+                <button
+                  role="radio"
+                  aria-checked={theme === "light"}
+                  onClick={() => setTheme("light")}
+                  className={cn(
+                    "flex items-center gap-2 px-4 py-3 rounded-lg border transition-all",
+                    "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    theme === "light"
+                      ? "border-primary bg-primary/10"
+                      : "border-border bg-secondary/50 hover:bg-secondary"
+                  )}
+                >
+                  <Sun className="w-5 h-5" />
+                  <span className="text-sm font-medium">Light</span>
+                </button>
+                <button
+                  role="radio"
+                  aria-checked={theme === "dark"}
+                  onClick={() => setTheme("dark")}
+                  className={cn(
+                    "flex items-center gap-2 px-4 py-3 rounded-lg border transition-all",
+                    "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    theme === "dark"
+                      ? "border-primary bg-primary/10"
+                      : "border-border bg-secondary/50 hover:bg-secondary"
+                  )}
+                >
+                  <Moon className="w-5 h-5" />
+                  <span className="text-sm font-medium">Dark</span>
+                </button>
               </div>
             </div>
 
@@ -153,16 +198,53 @@ export const SettingsWindow = () => {
                 ))}
               </div>
             </div>
+          </div>
+        )}
 
-            {/* Display Scale */}
-            <div className="space-y-3">
-              <label className="text-sm font-medium">Display</label>
-              <div className="flex items-center gap-2 p-3 rounded-lg bg-secondary/50">
-                <Monitor className="w-5 h-5 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">
-                  Desktop experience optimized for all screen sizes
-                </span>
+        {/* Wallpaper Tab */}
+        {activeTab === "wallpaper" && (
+          <div
+            id="wallpaper-panel"
+            role="tabpanel"
+            aria-labelledby="wallpaper-tab"
+            className="space-y-6 animate-fade-in"
+          >
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 rounded-lg bg-primary/20">
+                <Image className="w-5 h-5 text-primary" />
               </div>
+              <div>
+                <h2 className="text-lg font-semibold">Wallpaper</h2>
+                <p className="text-sm text-muted-foreground">
+                  Choose your desktop wallpaper
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {wallpapers.map((wallpaper) => (
+                <button
+                  key={wallpaper.id}
+                  onClick={() => setWallpaper(wallpaper.id)}
+                  className={cn(
+                    "relative aspect-video rounded-lg overflow-hidden transition-all",
+                    "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    currentWallpaper.id === wallpaper.id
+                      ? "ring-2 ring-primary scale-[1.02]"
+                      : "hover:scale-[1.02] opacity-80 hover:opacity-100"
+                  )}
+                  aria-label={wallpaper.name}
+                  aria-pressed={currentWallpaper.id === wallpaper.id}
+                >
+                  <div
+                    className="absolute inset-0"
+                    style={{ background: wallpaper.value }}
+                  />
+                  <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent">
+                    <span className="text-xs text-white font-medium">{wallpaper.name}</span>
+                  </div>
+                </button>
+              ))}
             </div>
           </div>
         )}
