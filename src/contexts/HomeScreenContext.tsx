@@ -18,23 +18,24 @@ export interface HomeScreenState {
   currentPage: number;
 }
 
+// Mobile-specific icons (separate from desktop)
 const DEFAULT_GRID_APPS: AppIcon[] = [
   { 
     id: "about", 
     label: "About", 
-    icon: "/icons/about.svg",
+    icon: "/mobile/icons/about.svg",
     quickActions: [{ id: "view", label: "View Profile" }]
   },
   { 
     id: "skills", 
     label: "Skills", 
-    icon: "/icons/skills.svg",
+    icon: "/mobile/icons/skills.svg",
     quickActions: [{ id: "view", label: "View All Skills" }]
   },
   { 
     id: "projects", 
     label: "Projects", 
-    icon: "/icons/projects.svg",
+    icon: "/mobile/icons/projects.svg",
     quickActions: [
       { id: "latest", label: "Open Latest" },
       { id: "gallery", label: "Gallery" }
@@ -43,30 +44,29 @@ const DEFAULT_GRID_APPS: AppIcon[] = [
   { 
     id: "experiences", 
     label: "Experience", 
-    icon: "/icons/experiences.svg",
+    icon: "/mobile/icons/experiences.svg",
     quickActions: [{ id: "timeline", label: "View Timeline" }]
   },
   { 
     id: "cv", 
     label: "CV", 
-    icon: "/icons/cv.svg",
+    icon: "/mobile/icons/cv.svg",
     quickActions: [
       { id: "download", label: "Download PDF" },
       { id: "view", label: "View Online" }
     ]
   },
   { 
-    id: "finder", 
-    label: "Finder", 
-    icon: "/icons/finder.svg" 
+    id: "settings", 
+    label: "Settings", 
+    icon: "/mobile/icons/settings.svg" 
   },
 ];
 
 const DEFAULT_DOCK_APPS: AppIcon[] = [
-  { id: "contact", label: "Contact", icon: "/icons/contact.svg" },
-  { id: "settings", label: "Settings", icon: "/icons/settings.svg" },
-  { id: "github", label: "GitHub", icon: "/icons/github.svg", isExternal: true, href: "https://github.com" },
-  { id: "linkedin", label: "LinkedIn", icon: "/icons/linkedin.svg", isExternal: true, href: "https://linkedin.com" },
+  { id: "contact", label: "Contact", icon: "/mobile/icons/contact.svg" },
+  { id: "github", label: "GitHub", icon: "/mobile/icons/github.svg", isExternal: true, href: "https://github.com" },
+  { id: "linkedin", label: "LinkedIn", icon: "/mobile/icons/linkedin.svg", isExternal: true, href: "https://linkedin.com" },
 ];
 
 const STORAGE_KEY = "ios_homescreen_state";

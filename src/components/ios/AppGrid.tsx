@@ -119,10 +119,10 @@ export const AppGrid = ({ onAppTap, onLongPress }: AppGridProps) => {
           {pages.map((pageApps, pageIndex) => (
             <div
               key={pageIndex}
-              className="flex-shrink-0 h-full px-4 pt-4 pb-4"
+              className="flex-shrink-0 h-full px-5 pt-2 pb-4"
               style={{ width: `${100 / totalPages}%` }}
             >
-              <div className="grid grid-cols-4 gap-y-4 gap-x-1 justify-items-center content-start">
+              <div className="grid grid-cols-4 gap-y-5 gap-x-4 justify-items-center content-start">
                 {pageApps.map((app) => (
                   <AppIcon
                     key={app.id}
@@ -140,7 +140,7 @@ export const AppGrid = ({ onAppTap, onLongPress }: AppGridProps) => {
       {/* Page indicator dots */}
       {totalPages > 1 && (
         <div
-          className="flex justify-center gap-2 pb-2"
+          className="flex justify-center gap-1.5 pb-3"
           role="tablist"
           aria-label="Home screen pages"
         >
@@ -148,10 +148,10 @@ export const AppGrid = ({ onAppTap, onLongPress }: AppGridProps) => {
             <button
               key={index}
               className={cn(
-                "h-2 rounded-full transition-all duration-300",
+                "h-1.5 rounded-full transition-all duration-300",
                 index === state.currentPage
-                  ? "w-6 bg-foreground"
-                  : "w-2 bg-foreground/40"
+                  ? "w-5 bg-white"
+                  : "w-1.5 bg-white/40"
               )}
               onClick={() => setCurrentPage(index)}
               role="tab"
