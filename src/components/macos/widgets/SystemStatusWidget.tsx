@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Cpu, HardDrive, Wifi, Battery } from "lucide-react";
+import { Cpu, MemoryStick, HardDrive, Wifi, Battery, Activity } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface SystemStatus {
   cpu: number;
@@ -35,58 +36,54 @@ export const SystemStatusWidget = () => {
     return () => clearInterval(timer);
   }, []);
 
-  const StatusBar = ({ value, color }: { value: number; color: string }) => (
-    <div className="h-1.5 bg-foreground/10 rounded-full overflow-hidden">
-      <div
-        className={`h-full rounded-full transition-all duration-500 ${color}`}
-        style={{ width: `${value}%` }}
-      />
+  const getStatusColor = (value: number) => {
+    if (value < 50) return "bg-emerald-500";
+    if (value < 75) return "bg-amber-500";
+    return "bg-red-500";
+  };
+
+  const StatusBar = ({ value, label, icon: Icon }: { value: number; label: string; icon: typeof Cpu }) => (
+    <div className="space-y-1">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-1.5">
+          <Icon className="w-3 h-3 text-muted-foreground" />
+          <span className="text-[10px] text-muted-foreground">{label}</span>
+        </div>
+        <span className="text-[10px] font-medium tabular-nums">{value}%</span>
+      </div>
+      <div className="h-1.5 bg-foreground/10 rounded-full overflow-hidden">
+        <div
+          className={cn(
+            "h-full rounded-full transition-all duration-500",
+            getStatusColor(value)
+          )}
+          style={{ width: `${value}%` }}
+        />
+      </div>
     </div>
   );
 
   return (
-    <div className="flex flex-col gap-3 h-full">
-      {/* CPU */}
-      <div>
-        <div className="flex items-center justify-between mb-1">
-          <div className="flex items-center gap-1.5">
-            <Cpu className="w-3 h-3 text-muted-foreground" />
-            <span className="text-[11px]">CPU</span>
-          </div>
-          <span className="text-[11px] text-muted-foreground">{status.cpu}%</span>
-        </div>
-        <StatusBar value={status.cpu} color="bg-blue-500" />
+    <div className="flex flex-col gap-2.5 h-full">
+      {/* Activity indicator */}
+      <div className="flex items-center gap-2 pb-2 border-b border-border/30">
+        <Activity className="w-4 h-4 text-primary animate-pulse" />
+        <span className="text-[11px] font-medium">System Active</span>
       </div>
 
-      {/* Memory */}
-      <div>
-        <div className="flex items-center justify-between mb-1">
-          <div className="flex items-center gap-1.5">
-            <HardDrive className="w-3 h-3 text-muted-foreground" />
-            <span className="text-[11px]">Memory</span>
-          </div>
-          <span className="text-[11px] text-muted-foreground">{status.memory}%</span>
-        </div>
-        <StatusBar value={status.memory} color="bg-green-500" />
-      </div>
-
-      {/* Storage */}
-      <div>
-        <div className="flex items-center justify-between mb-1">
-          <div className="flex items-center gap-1.5">
-            <HardDrive className="w-3 h-3 text-muted-foreground" />
-            <span className="text-[11px]">Storage</span>
-          </div>
-          <span className="text-[11px] text-muted-foreground">{status.storage}%</span>
-        </div>
-        <StatusBar value={status.storage} color="bg-yellow-500" />
-      </div>
+      {/* Status bars */}
+      <StatusBar value={status.cpu} label="CPU" icon={Cpu} />
+      <StatusBar value={status.memory} label="Memory" icon={MemoryStick} />
+      <StatusBar value={status.storage} label="Storage" icon={HardDrive} />
 
       {/* Footer */}
-      <div className="mt-auto flex items-center justify-between text-[10px] text-muted-foreground">
+      <div className="mt-auto flex items-center justify-between text-[9px] text-muted-foreground pt-2 border-t border-border/30">
         <div className="flex items-center gap-1">
-          <Wifi className={`w-3 h-3 ${status.network === "connected" ? "text-green-500" : "text-red-500"}`} />
-          <span>{status.network}</span>
+          <Wifi className={cn(
+            "w-3 h-3",
+            status.network === "connected" ? "text-emerald-500" : "text-red-500"
+          )} />
+          <span className="capitalize">{status.network}</span>
         </div>
         <div className="flex items-center gap-1">
           <Battery className="w-3 h-3" />

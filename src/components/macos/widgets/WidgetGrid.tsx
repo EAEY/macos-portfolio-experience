@@ -26,31 +26,33 @@ export const WidgetGrid = () => {
     showWidgets,
   } = useWidgets();
 
-  if (!showWidgets || widgets.length === 0) {
+  if (!showWidgets) {
     return null;
   }
 
   return (
-    <>
-      {widgets.map((widget) => {
-        const config = WIDGET_COMPONENTS[widget.type];
-        if (!config) return null;
+    <div className="pointer-events-none fixed inset-0 z-10">
+      <div className="pointer-events-auto">
+        {widgets.map((widget) => {
+          const config = WIDGET_COMPONENTS[widget.type];
+          if (!config) return null;
 
-        return (
-          <Widget
-            key={widget.id}
-            widget={widget}
-            title={config.title}
-            onUpdate={(updates) => updateWidget(widget.id, updates)}
-            onRemove={() => removeWidget(widget.id)}
-            onTogglePin={() => toggleWidgetPin(widget.id)}
-            onToggleMinimize={() => toggleWidgetMinimize(widget.id)}
-          >
-            {config.component}
-          </Widget>
-        );
-      })}
-    </>
+          return (
+            <Widget
+              key={widget.id}
+              widget={widget}
+              title={config.title}
+              onUpdate={(updates) => updateWidget(widget.id, updates)}
+              onRemove={() => removeWidget(widget.id)}
+              onTogglePin={() => toggleWidgetPin(widget.id)}
+              onToggleMinimize={() => toggleWidgetMinimize(widget.id)}
+            >
+              {config.component}
+            </Widget>
+          );
+        })}
+      </div>
+    </div>
   );
 };
 

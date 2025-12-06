@@ -1,4 +1,5 @@
-import { Cloud, Sun, CloudRain, CloudSnow, Wind } from "lucide-react";
+import { Cloud, Sun, CloudRain, CloudSnow, Wind, Droplets } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 // Mock weather data - in production, connect to a weather API
 const MOCK_WEATHER = {
@@ -25,11 +26,11 @@ const CONDITION_ICONS = {
 };
 
 const CONDITION_COLORS = {
-  sunny: "text-yellow-500",
-  cloudy: "text-gray-400",
+  sunny: "text-amber-400",
+  cloudy: "text-slate-400",
   rainy: "text-blue-400",
-  snowy: "text-blue-200",
-  windy: "text-gray-500",
+  snowy: "text-sky-200",
+  windy: "text-slate-500",
 };
 
 export const WeatherWidget = () => {
@@ -39,33 +40,46 @@ export const WeatherWidget = () => {
   return (
     <div className="flex flex-col h-full">
       {/* Current weather */}
-      <div className="flex items-center gap-3 mb-4">
-        <CurrentIcon className={`w-10 h-10 ${CONDITION_COLORS[current.condition]}`} />
+      <div className="flex items-center gap-3 mb-3">
+        <div className="relative">
+          <CurrentIcon className={cn("w-10 h-10", CONDITION_COLORS[current.condition])} />
+          {current.condition === "sunny" && (
+            <div className="absolute inset-0 animate-pulse opacity-50">
+              <CurrentIcon className="w-10 h-10 text-amber-300 blur-sm" />
+            </div>
+          )}
+        </div>
         <div>
-          <div className="text-3xl font-light">{current.temp}°</div>
-          <div className="text-xs text-muted-foreground">{current.location}</div>
+          <div className="text-2xl font-light tracking-tight">{current.temp}°</div>
+          <div className="text-[11px] text-muted-foreground">{current.location}</div>
         </div>
       </div>
 
       {/* Details */}
-      <div className="flex gap-4 mb-4 text-xs text-muted-foreground">
-        <span>Humidity: {current.humidity}%</span>
-        <span>Wind: {current.wind} km/h</span>
+      <div className="flex gap-3 mb-3 text-[11px] text-muted-foreground">
+        <span className="flex items-center gap-1">
+          <Droplets className="w-3 h-3" />
+          {current.humidity}%
+        </span>
+        <span className="flex items-center gap-1">
+          <Wind className="w-3 h-3" />
+          {current.wind} km/h
+        </span>
       </div>
 
       {/* Forecast */}
       <div className="flex-1 flex items-end">
-        <div className="flex gap-3 w-full">
+        <div className="flex gap-2 w-full">
           {forecast.map((day) => {
             const DayIcon = CONDITION_ICONS[day.condition];
             return (
               <div
                 key={day.day}
-                className="flex-1 text-center p-2 rounded-lg bg-foreground/5"
+                className="flex-1 text-center p-2 rounded-lg bg-foreground/5 hover:bg-foreground/10 transition-colors"
               >
                 <div className="text-[10px] text-muted-foreground mb-1">{day.day}</div>
-                <DayIcon className={`w-5 h-5 mx-auto ${CONDITION_COLORS[day.condition]}`} />
-                <div className="text-xs font-medium mt-1">{day.temp}°</div>
+                <DayIcon className={cn("w-4 h-4 mx-auto", CONDITION_COLORS[day.condition])} />
+                <div className="text-[11px] font-medium mt-1">{day.temp}°</div>
               </div>
             );
           })}
