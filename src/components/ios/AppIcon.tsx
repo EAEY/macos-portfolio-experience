@@ -80,15 +80,14 @@ export const AppIcon = ({
   }, []);
 
   // Squircle icon sizes following iOS specs
-  const iconSize = inDock ? "w-[56px] h-[56px]" : "w-[72px] h-[72px]";
-  const touchTarget = inDock ? "min-w-[72px] min-h-[72px]" : "min-w-[88px] min-h-[88px]";
-  const labelSize = inDock ? "text-[11px]" : "text-[12px]";
+  const iconSize = inDock ? "w-[60px] h-[60px]" : "w-[60px] h-[60px]";
+  const touchTarget = inDock ? "min-w-[60px] min-h-[60px]" : "min-w-[76px] min-h-[90px]";
 
   return (
     <button
       ref={iconRef}
       className={cn(
-        "relative flex flex-col items-center justify-center gap-1.5 touch-manipulation select-none",
+        "relative flex flex-col items-center justify-start gap-1 touch-manipulation select-none",
         touchTarget,
         "transition-transform duration-150",
         isPressed && !isEditMode && "scale-[0.92]",
@@ -118,48 +117,48 @@ export const AppIcon = ({
       {isEditMode && (
         <button
           className={cn(
-            "absolute -top-0.5 -left-0.5 w-[22px] h-[22px] z-20",
-            "bg-secondary/90 border border-border/50 rounded-full",
+            "absolute -top-1 -left-1 w-[20px] h-[20px] z-20",
+            "bg-neutral-500/90 rounded-full",
             "flex items-center justify-center",
-            "shadow-md backdrop-blur-sm",
+            "shadow-md",
             "active:scale-90 transition-transform"
           )}
           onClick={handleRemove}
           onTouchEnd={handleRemove}
           aria-label={`Remove ${app.label}`}
         >
-          <X className="w-3.5 h-3.5" />
+          <X className="w-3 h-3 text-white" strokeWidth={3} />
         </button>
       )}
 
-      {/* Icon Container with Squircle shape */}
+      {/* Icon Container with iOS Squircle shape */}
       <div
         className={cn(
           iconSize,
-          "ios-app-icon relative overflow-hidden",
-          "shadow-ios-icon"
+          "rounded-[14px] relative overflow-hidden",
+          "shadow-lg"
         )}
+        style={{
+          boxShadow: "0 4px 12px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,0.1)"
+        }}
       >
         {/* Icon image */}
         <img
           src={app.icon}
           alt=""
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover rounded-[14px]"
           draggable={false}
         />
-        
-        {/* Subtle inner highlight for depth */}
-        <div className="absolute inset-0 ios-icon-highlight pointer-events-none" />
         
         {/* Badge */}
         {app.badge !== undefined && app.badge > 0 && (
           <span
             className={cn(
-              "absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1.5",
-              "bg-destructive text-destructive-foreground",
+              "absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1",
+              "bg-red-500 text-white",
               "text-[11px] font-bold rounded-full",
               "flex items-center justify-center",
-              "shadow-md border border-destructive/50"
+              "shadow-md border-2 border-white/30"
             )}
           >
             {app.badge > 99 ? "99+" : app.badge}
@@ -167,16 +166,17 @@ export const AppIcon = ({
         )}
       </div>
 
-      {/* Label with text shadow for readability */}
-      <span
-        className={cn(
-          labelSize,
-          "font-medium text-center line-clamp-1 max-w-[80px]",
-          "ios-icon-label"
-        )}
-      >
-        {app.label}
-      </span>
+      {/* Label - only show if not in dock */}
+      {!inDock && (
+        <span
+          className={cn(
+            "text-[11px] font-medium text-center line-clamp-1 max-w-[72px]",
+            "text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]"
+          )}
+        >
+          {app.label}
+        </span>
+      )}
     </button>
   );
 };

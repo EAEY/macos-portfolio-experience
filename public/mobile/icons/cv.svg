@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs>
+    <linearGradient id="cvGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF3B30"/>
+      <stop offset="100%" style="stop-color:#FF2D55"/>
+    </linearGradient>
+  </defs>
+  <rect width="120" height="120" rx="26" fill="url(#cvGrad)"/>
+  <rect x="32" y="22" width="56" height="76" rx="4" fill="white"/>
+  <rect x="40" y="35" width="40" height="4" rx="2" fill="#FF3B30" opacity="0.5"/>
+  <rect x="40" y="45" width="30" height="4" rx="2" fill="#FF3B30" opacity="0.3"/>
+  <rect x="40" y="55" width="35" height="4" rx="2" fill="#FF3B30" opacity="0.3"/>
+  <rect x="40" y="65" width="25" height="4" rx="2" fill="#FF3B30" opacity="0.3"/>
+</svg>
