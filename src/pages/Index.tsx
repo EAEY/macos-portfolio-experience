@@ -7,9 +7,11 @@ import SpotlightSearch from "@/components/macos/SpotlightSearch";
 import WindowManager from "@/components/macos/WindowManager";
 import MobileNav from "@/components/macos/MobileNav";
 import MobileContent from "@/components/macos/MobileContent";
+import WidgetGrid from "@/components/macos/widgets/WidgetGrid";
 import { useIsMobile } from "@/hooks/use-media-query";
 
 const windowTitles: Record<DockItemId, string> = {
+  finder: "Finder",
   about: "About",
   skills: "Skills",
   projects: "Projects",
@@ -32,6 +34,7 @@ const Index = () => {
 
   // Refs for dock icons (for minimize animation)
   const dockIconRefs = useRef<Record<DockItemId, React.RefObject<HTMLButtonElement>>>({
+    finder: { current: null },
     about: { current: null },
     skills: { current: null },
     projects: { current: null },
@@ -151,6 +154,9 @@ const Index = () => {
 
       {/* Desktop Environment */}
       <Desktop>
+        {/* Widgets */}
+        <WidgetGrid />
+
         {/* Empty state */}
         {openWindows.length === 0 && (
           <div className="flex items-center justify-center h-full">

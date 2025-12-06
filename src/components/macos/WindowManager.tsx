@@ -7,6 +7,7 @@ import ExperiencesWindow from "./windows/ExperiencesWindow";
 import ContactWindow from "./windows/ContactWindow";
 import CVWindow from "./windows/CVWindow";
 import SettingsWindow from "./windows/SettingsWindow";
+import FinderWindow from "./windows/FinderWindow";
 import { DockItemId } from "./Dock";
 
 interface WindowConfig {
@@ -19,6 +20,13 @@ interface WindowConfig {
 }
 
 const windowConfigs: Record<string, Omit<WindowConfig, "id">> = {
+  finder: {
+    title: "Finder",
+    component: <FinderWindow />,
+    initialPosition: { x: 80, y: 50 },
+    initialSize: { width: 800, height: 500 },
+    minSize: { width: 600, height: 400 },
+  },
   about: {
     title: "About",
     component: <AboutWindow />,

@@ -8,6 +8,7 @@ export type DockItemId =
   | "experiences"
   | "contact"
   | "cv"
+  | "finder"
   | "github"
   | "linkedin"
   | "settings";
@@ -28,6 +29,7 @@ interface DockProps {
 
 // Icons are stored in /public/icons/ - replace these files to change icons
 const DOCK_ITEMS: DockItem[] = [
+  { id: "finder", label: "Finder", icon: "/icons/finder.svg" },
   { id: "about", label: "About", icon: "/icons/about.svg" },
   { id: "skills", label: "Skills", icon: "/icons/skills.svg" },
   { id: "projects", label: "Projects", icon: "/icons/projects.svg" },
