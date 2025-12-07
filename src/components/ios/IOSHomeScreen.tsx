@@ -11,6 +11,7 @@ import IOSDock from "./IOSDock";
 import QuickActionsMenu from "./QuickActionsMenu";
 import FullScreenApp from "./FullScreenApp";
 import ControlCenter from "./ControlCenter";
+import SpotlightSearch from "./SpotlightSearch";
 
 interface IOSHomeScreenProps {
   onBootComplete?: () => void;
@@ -29,8 +30,8 @@ export const IOSHomeScreen = ({ onBootComplete }: IOSHomeScreenProps) => {
     position: { x: number; y: number };
   } | null>(null);
   const [isControlCenterOpen, setIsControlCenterOpen] = useState(false);
+  const [isSpotlightOpen, setIsSpotlightOpen] = useState(false);
 
-  // Store icon ref for close animation
   const iconRefs = useRef<Map<string, DOMRect>>(new Map());
 
   // Handle unlock
@@ -40,7 +41,6 @@ export const IOSHomeScreen = ({ onBootComplete }: IOSHomeScreenProps) => {
 
   // Handle app tap
   const handleAppTap = useCallback((id: string, rect?: DOMRect) => {
-    // Handle external links
     if (id === "github") {
       window.open("https://github.com", "_blank");
       return;
@@ -92,6 +92,16 @@ export const IOSHomeScreen = ({ onBootComplete }: IOSHomeScreenProps) => {
     setIsControlCenterOpen(true);
   }, []);
 
+  // Spotlight search
+  const handleOpenSpotlight = useCallback(() => {
+    setIsSpotlightOpen(true);
+  }, []);
+
+  const handleSpotlightSelect = useCallback((appId: string) => {
+    setIsSpotlightOpen(false);
+    handleAppTap(appId);
+  }, [handleAppTap]);
+
   // Show lock screen if locked
   if (isLocked) {
     return <IOSLockScreen onUnlock={handleUnlock} />;
@@ -106,13 +116,24 @@ export const IOSHomeScreen = ({ onBootComplete }: IOSHomeScreenProps) => {
         backgroundPosition: "center",
       }}
     >
+      {/* Subtle overlay for depth */}
+      <div className="absolute inset-0 bg-black/5 pointer-events-none" />
+
       {/* Status Bar */}
       <IOSStatusBar onSwipeDown={handleOpenControlCenter} />
 
-      {/* Search bar area (like iOS reference) */}
-      <div className="pt-14 pb-2 px-4">
+      {/* Spotlight Search Trigger Area */}
+      <div className="pt-14 pb-3 px-5">
         <button 
-          className="w-full py-2.5 px-4 rounded-2xl bg-black/20 backdrop-blur-xl border border-white/10 text-white/60 text-sm flex items-center justify-center gap-2"
+          onClick={handleOpenSpotlight}
+          className={cn(
+            "w-full py-2 px-4 rounded-xl",
+            "bg-white/10 backdrop-blur-xl",
+            "border border-white/10",
+            "text-white/50 text-[15px] font-normal",
+            "flex items-center justify-center gap-2",
+            "active:bg-white/15 transition-colors"
+          )}
           aria-label="Search"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -138,6 +159,13 @@ export const IOSHomeScreen = ({ onBootComplete }: IOSHomeScreenProps) => {
           onEnterEditMode={handleEnterEditMode}
         />
       )}
+
+      {/* Spotlight Search */}
+      <SpotlightSearch
+        isOpen={isSpotlightOpen}
+        onClose={() => setIsSpotlightOpen(false)}
+        onSelect={handleSpotlightSelect}
+      />
 
       {/* Control Center */}
       <ControlCenter

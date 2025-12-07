@@ -6,11 +6,12 @@ import { usePrefersReducedMotion } from "@/hooks/use-media-query";
 
 interface AppIconProps {
   app: AppIconType;
-  onTap: (id: string) => void;
+  onTap: (id: string, rect?: DOMRect) => void;
   onLongPress: (app: AppIconType, rect: DOMRect) => void;
   isDragging?: boolean;
   dragOffset?: { x: number; y: number };
   inDock?: boolean;
+  onDragStart?: (app: AppIconType, rect: DOMRect) => void;
 }
 
 export const AppIcon = ({
@@ -20,6 +21,7 @@ export const AppIcon = ({
   isDragging = false,
   dragOffset,
   inDock = false,
+  onDragStart,
 }: AppIconProps) => {
   const { isEditMode, hideApp } = useHomeScreen();
   const reducedMotion = usePrefersReducedMotion();
@@ -29,16 +31,27 @@ export const AppIcon = ({
 
   const handleTouchStart = useCallback(
     (e: React.TouchEvent | React.MouseEvent) => {
-      if (isEditMode) return;
       setIsPressed(true);
-      longPressTimer.current = window.setTimeout(() => {
-        if (iconRef.current) {
-          const rect = iconRef.current.getBoundingClientRect();
-          onLongPress(app, rect);
-        }
-      }, 500);
+      
+      if (isEditMode && onDragStart && iconRef.current) {
+        // In edit mode, start drag immediately for reordering
+        longPressTimer.current = window.setTimeout(() => {
+          if (iconRef.current) {
+            const rect = iconRef.current.getBoundingClientRect();
+            onDragStart(app, rect);
+          }
+        }, 100);
+      } else {
+        // Normal mode: trigger quick actions menu after long press
+        longPressTimer.current = window.setTimeout(() => {
+          if (iconRef.current) {
+            const rect = iconRef.current.getBoundingClientRect();
+            onLongPress(app, rect);
+          }
+        }, 500);
+      }
     },
-    [app, onLongPress, isEditMode]
+    [app, onLongPress, isEditMode, onDragStart]
   );
 
   const handleTouchEnd = useCallback(() => {
@@ -50,15 +63,16 @@ export const AppIcon = ({
   }, []);
 
   const handleTouchMove = useCallback(() => {
-    if (longPressTimer.current) {
+    if (longPressTimer.current && !isEditMode) {
       clearTimeout(longPressTimer.current);
       longPressTimer.current = null;
     }
-  }, []);
+  }, [isEditMode]);
 
   const handleClick = useCallback(() => {
-    if (!isEditMode) {
-      onTap(app.id);
+    if (!isEditMode && iconRef.current) {
+      const rect = iconRef.current.getBoundingClientRect();
+      onTap(app.id, rect);
     }
   }, [app.id, onTap, isEditMode]);
 
@@ -70,7 +84,6 @@ export const AppIcon = ({
     [app.id, hideApp]
   );
 
-  // Cleanup timer on unmount
   useEffect(() => {
     return () => {
       if (longPressTimer.current) {
@@ -79,27 +92,27 @@ export const AppIcon = ({
     };
   }, []);
 
-  // Squircle icon sizes following iOS specs
-  const iconSize = inDock ? "w-[60px] h-[60px]" : "w-[60px] h-[60px]";
-  const touchTarget = inDock ? "min-w-[60px] min-h-[60px]" : "min-w-[76px] min-h-[90px]";
+  // iOS icon sizes
+  const iconSize = inDock ? 60 : 60;
 
   return (
     <button
       ref={iconRef}
       className={cn(
-        "relative flex flex-col items-center justify-start gap-1 touch-manipulation select-none",
-        touchTarget,
-        "transition-transform duration-150",
-        isPressed && !isEditMode && "scale-[0.92]",
-        isDragging && "opacity-60 scale-110",
+        "relative flex flex-col items-center gap-1.5 touch-manipulation select-none",
+        inDock ? "min-w-[60px]" : "min-w-[76px] min-h-[88px]",
+        "transition-transform duration-150 ease-out",
+        isPressed && !isEditMode && "scale-[0.9]",
+        isDragging && "opacity-30",
         isEditMode && !reducedMotion && "animate-wiggle",
-        "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        "focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:rounded-2xl"
       )}
       style={
         isDragging && dragOffset
           ? {
-              transform: `translate(${dragOffset.x}px, ${dragOffset.y}px) scale(1.1)`,
+              transform: `translate(${dragOffset.x}px, ${dragOffset.y}px) scale(1.15)`,
               zIndex: 100,
+              transition: "none",
             }
           : undefined
       }
@@ -117,48 +130,58 @@ export const AppIcon = ({
       {isEditMode && (
         <button
           className={cn(
-            "absolute -top-1 -left-1 w-[20px] h-[20px] z-20",
-            "bg-neutral-500/90 rounded-full",
+            "absolute -top-1 -left-1 w-5 h-5 z-20",
+            "bg-[#8e8e93] rounded-full",
             "flex items-center justify-center",
-            "shadow-md",
+            "shadow-lg",
             "active:scale-90 transition-transform"
           )}
           onClick={handleRemove}
-          onTouchEnd={handleRemove}
+          onTouchEnd={(e) => {
+            e.stopPropagation();
+            handleRemove(e);
+          }}
           aria-label={`Remove ${app.label}`}
         >
           <X className="w-3 h-3 text-white" strokeWidth={3} />
         </button>
       )}
 
-      {/* Icon Container with iOS Squircle shape */}
+      {/* Icon Container - iOS squircle */}
       <div
-        className={cn(
-          iconSize,
-          "rounded-[14px] relative overflow-hidden",
-          "shadow-lg"
-        )}
+        className="relative overflow-hidden flex-shrink-0"
         style={{
-          boxShadow: "0 4px 12px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,0.1)"
+          width: iconSize,
+          height: iconSize,
+          borderRadius: iconSize * 0.22, // iOS squircle ratio
+          boxShadow: "0 4px 12px rgba(0,0,0,0.2), 0 1px 4px rgba(0,0,0,0.1)",
         }}
       >
-        {/* Icon image */}
         <img
           src={app.icon}
           alt=""
-          className="w-full h-full object-cover rounded-[14px]"
+          className="w-full h-full object-cover"
           draggable={false}
+        />
+        
+        {/* Subtle highlight overlay */}
+        <div 
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: "linear-gradient(180deg, rgba(255,255,255,0.15) 0%, transparent 50%)",
+            borderRadius: "inherit",
+          }}
         />
         
         {/* Badge */}
         {app.badge !== undefined && app.badge > 0 && (
           <span
             className={cn(
-              "absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1",
-              "bg-red-500 text-white",
-              "text-[11px] font-bold rounded-full",
+              "absolute -top-1 -right-1 min-w-[20px] h-[20px] px-1.5",
+              "bg-[#ff3b30] text-white",
+              "text-[13px] font-bold rounded-full",
               "flex items-center justify-center",
-              "shadow-md border-2 border-white/30"
+              "shadow-md border-2 border-white/20"
             )}
           >
             {app.badge > 99 ? "99+" : app.badge}
@@ -170,9 +193,13 @@ export const AppIcon = ({
       {!inDock && (
         <span
           className={cn(
-            "text-[11px] font-medium text-center line-clamp-1 max-w-[72px]",
-            "text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]"
+            "text-[11px] font-medium text-center leading-tight",
+            "max-w-[72px] truncate",
+            "text-white"
           )}
+          style={{
+            textShadow: "0 1px 3px rgba(0,0,0,0.6)",
+          }}
         >
           {app.label}
         </span>
