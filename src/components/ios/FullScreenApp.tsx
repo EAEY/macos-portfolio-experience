@@ -9,8 +9,8 @@ import ProjectsWindow from "@/components/macos/windows/ProjectsWindow";
 import ExperiencesWindow from "@/components/macos/windows/ExperiencesWindow";
 import ContactWindow from "@/components/macos/windows/ContactWindow";
 import CVWindow from "@/components/macos/windows/CVWindow";
-import SettingsWindow from "@/components/macos/windows/SettingsWindow";
 import FinderWindow from "@/components/macos/windows/FinderWindow";
+import MobileSettingsApp from "./MobileSettingsApp";
 
 interface FullScreenAppProps {
   appId: DockItemId | "settings";
@@ -18,14 +18,14 @@ interface FullScreenAppProps {
   launchRect?: DOMRect;
 }
 
-const APP_CONTENT: Record<string, { title: string; component: React.ReactNode }> = {
+const APP_CONTENT: Record<string, { title: string; component: React.ReactNode; customHeader?: boolean }> = {
   about: { title: "About", component: <AboutWindow /> },
   skills: { title: "Skills", component: <SkillsWindow /> },
   projects: { title: "Projects", component: <ProjectsWindow /> },
   experiences: { title: "Experience", component: <ExperiencesWindow /> },
   contact: { title: "Contact", component: <ContactWindow /> },
   cv: { title: "CV", component: <CVWindow /> },
-  settings: { title: "Settings", component: <SettingsWindow /> },
+  settings: { title: "Settings", component: <MobileSettingsApp />, customHeader: true },
   finder: { title: "Finder", component: <FinderWindow /> },
 };
 
@@ -138,32 +138,34 @@ export const FullScreenApp = ({ appId, onClose, launchRect }: FullScreenAppProps
       aria-modal="true"
       aria-label={appData.title}
     >
-      {/* App Header */}
-      <header 
-        className="flex-shrink-0 flex items-center gap-3 px-4 pt-14 pb-3 border-b border-border"
-        style={{
-          background: "hsl(var(--background) / 0.95)",
-          backdropFilter: "blur(20px) saturate(180%)",
-          WebkitBackdropFilter: "blur(20px) saturate(180%)",
-        }}
-      >
-        <button
-          onClick={onClose}
-          className={cn(
-            "flex items-center gap-0.5 text-[#007aff] font-normal text-[17px]",
-            "p-2 -ml-2 rounded-xl transition-all duration-200",
-            "active:opacity-50",
-            "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff]"
-          )}
-          aria-label="Go back to home screen"
+      {/* App Header - hide for custom header apps */}
+      {!appData.customHeader && (
+        <header 
+          className="flex-shrink-0 flex items-center gap-3 px-4 pt-14 pb-3 border-b border-border"
+          style={{
+            background: "hsl(var(--background) / 0.95)",
+            backdropFilter: "blur(20px) saturate(180%)",
+            WebkitBackdropFilter: "blur(20px) saturate(180%)",
+          }}
         >
-          <ChevronLeft className="w-5 h-5" strokeWidth={2.5} />
-          <span>Back</span>
-        </button>
-        <h1 className="text-[17px] font-semibold flex-1 text-center text-foreground pr-14">
-          {appData.title}
-        </h1>
-      </header>
+          <button
+            onClick={onClose}
+            className={cn(
+              "flex items-center gap-0.5 text-[#007aff] font-normal text-[17px]",
+              "p-2 -ml-2 rounded-xl transition-all duration-200",
+              "active:opacity-50",
+              "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff]"
+            )}
+            aria-label="Go back to home screen"
+          >
+            <ChevronLeft className="w-5 h-5" strokeWidth={2.5} />
+            <span>Back</span>
+          </button>
+          <h1 className="text-[17px] font-semibold flex-1 text-center text-foreground pr-14">
+            {appData.title}
+          </h1>
+        </header>
+      )}
 
       {/* App Content */}
       <main className="flex-1 overflow-y-auto overscroll-contain bg-background">

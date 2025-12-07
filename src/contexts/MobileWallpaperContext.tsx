@@ -15,6 +15,48 @@ export const MOBILE_WALLPAPERS: MobileWallpaper[] = [
     lockscreen: "/mobile/wallpapers/lockscreen.jpg",
     homescreen: "/mobile/wallpapers/homescreen.jpg",
   },
+  {
+    id: "gradient-blue",
+    name: "Blue Gradient",
+    lockscreen: "https://images.unsplash.com/photo-1557683316-973673baf926?w=600&h=1200&fit=crop",
+    homescreen: "https://images.unsplash.com/photo-1557683316-973673baf926?w=600&h=1200&fit=crop",
+  },
+  {
+    id: "gradient-purple",
+    name: "Purple Dreams",
+    lockscreen: "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=600&h=1200&fit=crop",
+    homescreen: "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=600&h=1200&fit=crop",
+  },
+  {
+    id: "mountains",
+    name: "Mountains",
+    lockscreen: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=1200&fit=crop",
+    homescreen: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=1200&fit=crop",
+  },
+  {
+    id: "ocean",
+    name: "Ocean",
+    lockscreen: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&h=1200&fit=crop",
+    homescreen: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&h=1200&fit=crop",
+  },
+  {
+    id: "aurora",
+    name: "Aurora",
+    lockscreen: "https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=600&h=1200&fit=crop",
+    homescreen: "https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=600&h=1200&fit=crop",
+  },
+  {
+    id: "dark-abstract",
+    name: "Dark Abstract",
+    lockscreen: "https://images.unsplash.com/photo-1550684376-efcbd6e3f031?w=600&h=1200&fit=crop",
+    homescreen: "https://images.unsplash.com/photo-1550684376-efcbd6e3f031?w=600&h=1200&fit=crop",
+  },
+  {
+    id: "neon-city",
+    name: "Neon City",
+    lockscreen: "https://images.unsplash.com/photo-1514565131-fce0801e5785?w=600&h=1200&fit=crop",
+    homescreen: "https://images.unsplash.com/photo-1514565131-fce0801e5785?w=600&h=1200&fit=crop",
+  },
 ];
 
 interface MobileWallpaperContextType {

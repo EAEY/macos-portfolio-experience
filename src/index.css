@@ -684,3 +684,13 @@ html.font-large {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
+
+/* iOS Edit Mode Wiggle Animation */
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-1.5deg); }
+  50% { transform: rotate(1.5deg); }
+}
+
+.animate-wiggle {
+  animation: wiggle 0.15s ease-in-out infinite;
+}
