@@ -3,6 +3,7 @@ import { Signal, Wifi, Battery, Flashlight, Camera, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { usePrefersReducedMotion } from "@/hooks/use-media-query";
 import { useMobileWallpaper } from "@/contexts/MobileWallpaperContext";
+import LockScreenNotifications from "./LockScreenNotifications";
 
 interface IOSLockScreenProps {
   onUnlock: () => void;
@@ -14,6 +15,8 @@ export const IOSLockScreen = ({ onUnlock }: IOSLockScreenProps) => {
   const [swipeY, setSwipeY] = useState(0);
   const [isSwiping, setIsSwiping] = useState(false);
   const [isUnlocking, setIsUnlocking] = useState(false);
+  const [notificationsExpanded, setNotificationsExpanded] = useState(false);
+  const [dynamicIslandExpanded, setDynamicIslandExpanded] = useState(false);
   const startY = useRef(0);
   const reducedMotion = usePrefersReducedMotion();
 
@@ -22,6 +25,18 @@ export const IOSLockScreen = ({ onUnlock }: IOSLockScreenProps) => {
     const timer = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
+
+  // Dynamic island animation on mount
+  useEffect(() => {
+    if (!reducedMotion) {
+      const animateIsland = () => {
+        setDynamicIslandExpanded(true);
+        setTimeout(() => setDynamicIslandExpanded(false), 2000);
+      };
+      const timeout = setTimeout(animateIsland, 500);
+      return () => clearTimeout(timeout);
+    }
+  }, [reducedMotion]);
 
   const hours = time.toLocaleTimeString([], { hour: "numeric", hour12: false });
   const minutes = time.toLocaleTimeString([], { minute: "2-digit" });
@@ -74,6 +89,9 @@ export const IOSLockScreen = ({ onUnlock }: IOSLockScreenProps) => {
   const translateY = isUnlocking ? -window.innerHeight : -swipeY * 0.6;
   const blurAmount = swipeProgress * 20;
 
+  // Get battery percentage (simulated)
+  const [batteryLevel] = useState(Math.floor(Math.random() * 40) + 60);
+
   return (
     <div
       className={cn(
@@ -101,34 +119,62 @@ export const IOSLockScreen = ({ onUnlock }: IOSLockScreenProps) => {
       />
 
       {/* Dark overlay for better text contrast */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/40" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/50" />
 
       {/* Status Bar */}
-      <header className="relative z-50 h-14 px-8 flex items-center justify-between">
+      <header className="relative z-50 h-[54px] px-6 flex items-center justify-between">
         {/* Time (left) - iOS style */}
-        <span className="font-semibold text-[15px] text-white tracking-tight">
+        <span className="font-semibold text-[16px] text-white tracking-tight min-w-[54px]">
           {time.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}
         </span>
 
-        {/* Dynamic Island (center) */}
-        <div className="absolute left-1/2 -translate-x-1/2 top-3">
-          <div className="w-[126px] h-[37px] bg-black rounded-[20px]" />
+        {/* Dynamic Island (center) with animation */}
+        <div className="absolute left-1/2 -translate-x-1/2 top-[10px]">
+          <div 
+            className={cn(
+              "bg-black rounded-[24px] flex items-center justify-center overflow-hidden",
+              !reducedMotion && "transition-all duration-500 ease-out"
+            )}
+            style={{
+              width: dynamicIslandExpanded ? 200 : 126,
+              height: dynamicIslandExpanded ? 48 : 37,
+            }}
+          >
+            {dynamicIslandExpanded && (
+              <div className="flex items-center gap-3 px-4 animate-fade-in">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#007aff] to-[#5856d6] flex items-center justify-center">
+                  <Lock className="w-4 h-4 text-white" />
+                </div>
+                <div className="text-white">
+                  <p className="text-[11px] text-white/60">Face ID</p>
+                  <p className="text-[13px] font-medium">Locked</p>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Status icons (right) */}
-        <div className="flex items-center gap-1 text-white">
-          <Signal className="w-[18px] h-[18px]" strokeWidth={2} />
-          <Wifi className="w-[18px] h-[18px]" strokeWidth={2} />
-          <div className="flex items-center gap-0.5">
-            <span className="text-[12px] font-medium">100</span>
-            <Battery className="w-[25px] h-[13px]" strokeWidth={1.5} />
+        <div className="flex items-center gap-[3px] text-white min-w-[72px] justify-end">
+          <Signal className="w-[18px] h-[18px]" strokeWidth={2.5} />
+          <Wifi className="w-[18px] h-[18px]" strokeWidth={2.5} />
+          <div className="flex items-center ml-1">
+            <span className="text-[13px] font-semibold mr-[3px]">{batteryLevel}</span>
+            <div className="relative w-[27px] h-[13px]">
+              <div className="absolute inset-0 border-[1.5px] border-white rounded-[4px]" />
+              <div className="absolute right-[-3px] top-1/2 -translate-y-1/2 w-[1.5px] h-[5px] bg-white rounded-r-sm" />
+              <div 
+                className="absolute left-[2px] top-[2px] bottom-[2px] bg-white rounded-[2px]"
+                style={{ width: `${(batteryLevel / 100) * 20}px` }}
+              />
+            </div>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
       <div 
-        className="relative flex-1 flex flex-col items-center pt-20"
+        className="relative flex-1 flex flex-col items-center pt-10"
         style={{ 
           opacity: contentOpacity,
           transform: `scale(${contentScale})`,
@@ -136,88 +182,98 @@ export const IOSLockScreen = ({ onUnlock }: IOSLockScreenProps) => {
         }}
       >
         {/* Lock Icon */}
-        <div className="mb-2">
-          <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center">
+        <div className="mb-3">
+          <div className="w-9 h-9 rounded-full bg-white/15 backdrop-blur-md flex items-center justify-center border border-white/20">
             <Lock className="w-4 h-4 text-white" />
           </div>
         </div>
 
         {/* Date */}
-        <span className="text-white/90 text-[20px] font-normal tracking-wide">
+        <span className="text-white/80 text-[22px] font-light tracking-wide">
           {formattedDate}
         </span>
 
-        {/* Large Time - iOS 17 style with depth layers */}
+        {/* Large Time - iOS 17 style */}
         <div className="relative mt-0 flex items-baseline justify-center">
           <span 
-            className="text-[96px] font-bold tracking-[-4px] leading-none"
+            className="text-[86px] font-bold tracking-[-2px] leading-none"
             style={{
               color: "white",
-              textShadow: "0 2px 20px rgba(0,0,0,0.3)",
+              textShadow: "0 4px 30px rgba(0,0,0,0.3)",
             }}
           >
             {hours}
           </span>
           <span 
-            className="text-[96px] font-bold tracking-[-4px] leading-none mx-1"
+            className="text-[86px] font-bold tracking-[-2px] leading-none mx-0"
             style={{
               color: "white",
-              textShadow: "0 2px 20px rgba(0,0,0,0.3)",
+              textShadow: "0 4px 30px rgba(0,0,0,0.3)",
             }}
           >
             :
           </span>
           <span 
-            className="text-[96px] font-bold tracking-[-4px] leading-none"
+            className="text-[86px] font-bold tracking-[-2px] leading-none"
             style={{
               color: "white",
-              textShadow: "0 2px 20px rgba(0,0,0,0.3)",
+              textShadow: "0 4px 30px rgba(0,0,0,0.3)",
             }}
           >
             {minutes}
           </span>
         </div>
 
-        {/* Notification placeholder area */}
-        <div className="mt-8 w-full px-6 flex-1">
-          {/* Notifications would go here */}
+        {/* Notifications */}
+        <div className="mt-6 w-full flex-1 overflow-auto">
+          <LockScreenNotifications
+            expanded={notificationsExpanded}
+            onToggleExpand={() => setNotificationsExpanded(!notificationsExpanded)}
+          />
         </div>
       </div>
 
       {/* Bottom Section */}
       <div 
-        className="relative pb-2 px-6"
+        className="relative pb-3 px-6"
         style={{ 
           opacity: contentOpacity,
           transition: !isSwiping ? "opacity 0.3s" : "none",
         }}
       >
         {/* Quick Action Buttons */}
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex justify-between items-center mb-5">
           {/* Flashlight */}
           <button 
-            className="w-[50px] h-[50px] rounded-full bg-black/30 backdrop-blur-xl flex items-center justify-center active:scale-95 transition-transform"
-            style={{ boxShadow: "inset 0 0 0 0.5px rgba(255,255,255,0.2)" }}
+            className={cn(
+              "w-[50px] h-[50px] rounded-full flex items-center justify-center",
+              "bg-black/25 backdrop-blur-2xl",
+              "active:bg-white/20 active:scale-95 transition-all"
+            )}
+            style={{ boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.15)" }}
             aria-label="Flashlight"
           >
-            <Flashlight className="w-6 h-6 text-white" />
+            <Flashlight className="w-[26px] h-[26px] text-white" />
           </button>
 
           {/* Camera */}
           <button 
-            className="w-[50px] h-[50px] rounded-full bg-black/30 backdrop-blur-xl flex items-center justify-center active:scale-95 transition-transform"
-            style={{ boxShadow: "inset 0 0 0 0.5px rgba(255,255,255,0.2)" }}
+            className={cn(
+              "w-[50px] h-[50px] rounded-full flex items-center justify-center",
+              "bg-black/25 backdrop-blur-2xl",
+              "active:bg-white/20 active:scale-95 transition-all"
+            )}
+            style={{ boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.15)" }}
             aria-label="Camera"
           >
-            <Camera className="w-6 h-6 text-white" />
+            <Camera className="w-[26px] h-[26px] text-white" />
           </button>
         </div>
 
-        {/* Swipe hint text */}
+        {/* Swipe hint */}
         <p 
           className={cn(
-            "text-center text-white/70 text-[13px] font-medium mb-2",
-            !reducedMotion && "animate-pulse"
+            "text-center text-white/60 text-[13px] font-medium mb-2"
           )}
           style={{ opacity: 1 - swipeProgress }}
         >
@@ -225,7 +281,7 @@ export const IOSLockScreen = ({ onUnlock }: IOSLockScreenProps) => {
         </p>
 
         {/* Home Indicator */}
-        <div className="flex justify-center pb-2">
+        <div className="flex justify-center pb-1">
           <div className="w-[134px] h-[5px] bg-white rounded-full" />
         </div>
       </div>

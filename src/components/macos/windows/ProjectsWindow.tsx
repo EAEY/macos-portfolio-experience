@@ -153,29 +153,29 @@ const ProjectModal = ({
   }, [onClose, onPrev, onNext, hasPrev, hasNext]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4">
+    <div className="absolute inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-background/80 backdrop-blur-sm"
         onClick={onClose}
       />
 
-      {/* Modal - Responsive sizing */}
-      <div className="relative w-full max-w-[95vw] sm:max-w-lg md:max-w-xl lg:max-w-2xl max-h-[90vh] overflow-auto bg-card/95 backdrop-blur-xl border border-border rounded-2xl shadow-2xl animate-scale-in">
+      {/* Modal - Contained within window */}
+      <div className="relative w-full max-w-lg max-h-full overflow-auto bg-card/95 backdrop-blur-xl border border-border rounded-2xl shadow-2xl animate-scale-in">
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-2 right-2 sm:top-4 sm:right-4 z-10 p-2 rounded-full bg-background/60 hover:bg-background/80 transition-colors"
+          className="absolute top-3 right-3 z-10 p-2 rounded-full bg-background/60 hover:bg-background/80 transition-colors"
           aria-label="Close modal"
         >
           <X className="w-4 h-4" />
         </button>
 
-        {/* Navigation buttons - Hidden on small screens */}
+        {/* Navigation buttons */}
         {hasPrev && (
           <button
             onClick={onPrev}
-            className="hidden sm:flex absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-background/60 hover:bg-background/80 transition-colors"
+            className="absolute left-3 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-background/60 hover:bg-background/80 transition-colors"
             aria-label="Previous project"
           >
             <ChevronLeft className="w-5 h-5" />
@@ -184,7 +184,7 @@ const ProjectModal = ({
         {hasNext && (
           <button
             onClick={onNext}
-            className="hidden sm:flex absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-background/60 hover:bg-background/80 transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-background/60 hover:bg-background/80 transition-colors"
             aria-label="Next project"
           >
             <ChevronRight className="w-5 h-5" />
@@ -193,61 +193,37 @@ const ProjectModal = ({
 
         {/* Image */}
         <div className="aspect-video bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center">
-          <span className="text-4xl sm:text-6xl opacity-50">🖼️</span>
+          <span className="text-5xl opacity-50">🖼️</span>
         </div>
 
         {/* Content */}
-        <div className="p-4 sm:p-6 space-y-3 sm:space-y-4">
-          <h2 className="text-xl sm:text-2xl font-bold text-foreground">{project.title}</h2>
-          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">{project.description}</p>
+        <div className="p-5 space-y-4">
+          <h2 className="text-xl font-bold text-foreground">{project.title}</h2>
+          <p className="text-sm text-muted-foreground leading-relaxed">{project.description}</p>
 
           {/* Tags */}
-          <div className="flex flex-wrap gap-1.5 sm:gap-2">
+          <div className="flex flex-wrap gap-2">
             {project.tags.map((tag) => (
               <span
                 key={tag}
-                className="px-2 sm:px-3 py-0.5 sm:py-1 text-xs sm:text-sm rounded-full bg-primary/20 text-primary"
+                className="px-3 py-1 text-sm rounded-full bg-primary/20 text-primary"
               >
                 {tag}
               </span>
             ))}
           </div>
 
-          {/* Mobile navigation */}
-          <div className="flex sm:hidden justify-between pt-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onPrev}
-              disabled={!hasPrev}
-              className="gap-1"
-            >
-              <ChevronLeft className="w-4 h-4" />
-              Prev
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onNext}
-              disabled={!hasNext}
-              className="gap-1"
-            >
-              Next
-              <ChevronRight className="w-4 h-4" />
-            </Button>
-          </div>
-
           {/* Links */}
-          <div className="flex flex-wrap gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-border">
+          <div className="flex flex-wrap gap-2 pt-3 border-t border-border">
             {project.liveUrl && (
               <Button
                 variant="outline"
                 size="sm"
-                className="gap-2 bg-primary/20 border-primary/40 hover:bg-primary/30 text-xs sm:text-sm"
+                className="gap-2 bg-primary/20 border-primary/40 hover:bg-primary/30"
                 asChild
               >
                 <a href={project.liveUrl} target="_blank" rel="noopener noreferrer">
-                  <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <ExternalLink className="w-4 h-4" />
                   Live Demo
                 </a>
               </Button>
@@ -256,11 +232,11 @@ const ProjectModal = ({
               <Button
                 variant="outline"
                 size="sm"
-                className="gap-2 bg-secondary border-border hover:bg-secondary/80 text-xs sm:text-sm"
+                className="gap-2 bg-secondary border-border hover:bg-secondary/80"
                 asChild
               >
                 <a href={project.repoUrl} target="_blank" rel="noopener noreferrer">
-                  <Github className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <Github className="w-4 h-4" />
                   Repository
                 </a>
               </Button>
@@ -269,11 +245,11 @@ const ProjectModal = ({
               <Button
                 variant="outline"
                 size="sm"
-                className="gap-2 bg-accent/20 border-accent/40 hover:bg-accent/30 text-xs sm:text-sm"
+                className="gap-2 bg-accent/20 border-accent/40 hover:bg-accent/30"
                 asChild
               >
                 <a href={project.figmaUrl} target="_blank" rel="noopener noreferrer">
-                  <Figma className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <Figma className="w-4 h-4" />
                   Figma
                 </a>
               </Button>
@@ -305,7 +281,7 @@ export const ProjectsWindow = () => {
   };
 
   return (
-    <div className="h-full overflow-auto">
+    <div className="h-full overflow-auto relative">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-2">
         {projects.map((project, index) => (
           <div
@@ -321,7 +297,7 @@ export const ProjectsWindow = () => {
         ))}
       </div>
 
-      {/* Project Modal */}
+      {/* Project Modal - positioned within the window */}
       {selectedProject && (
         <ProjectModal
           project={selectedProject}
