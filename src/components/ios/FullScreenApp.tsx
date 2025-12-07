@@ -11,7 +11,6 @@ import ContactWindow from "@/components/macos/windows/ContactWindow";
 import CVWindow from "@/components/macos/windows/CVWindow";
 import SettingsWindow from "@/components/macos/windows/SettingsWindow";
 import FinderWindow from "@/components/macos/windows/FinderWindow";
-import HomeIndicator from "./HomeIndicator";
 
 interface FullScreenAppProps {
   appId: DockItemId | "settings";
@@ -35,14 +34,12 @@ export const FullScreenApp = ({ appId, onClose, launchRect }: FullScreenAppProps
   const containerRef = useRef<HTMLDivElement>(null);
   const appData = APP_CONTENT[appId];
   
-  // Swipe up to close state
   const [swipeY, setSwipeY] = useState(0);
   const [isSwiping, setIsSwiping] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const touchStartY = useRef<number | null>(null);
   const touchStartTime = useRef<number>(0);
 
-  // Calculate initial transform for launch animation
   const getInitialTransform = () => {
     if (!launchRect || reducedMotion) return {};
     const centerX = launchRect.left + launchRect.width / 2;
@@ -56,11 +53,9 @@ export const FullScreenApp = ({ appId, onClose, launchRect }: FullScreenAppProps
     } as React.CSSProperties;
   };
 
-  // Handle swipe up to dismiss
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    // Only start swipe from bottom 80px of screen
     const touchY = e.touches[0].clientY;
-    if (touchY > window.innerHeight - 80) {
+    if (touchY > window.innerHeight - 100) {
       touchStartY.current = touchY;
       touchStartTime.current = Date.now();
       setIsSwiping(true);
@@ -73,7 +68,6 @@ export const FullScreenApp = ({ appId, onClose, launchRect }: FullScreenAppProps
     const currentY = e.touches[0].clientY;
     const diff = touchStartY.current - currentY;
     
-    // Only track upward swipes
     if (diff > 0) {
       setSwipeY(Math.min(diff, window.innerHeight * 0.5));
     }
@@ -83,17 +77,15 @@ export const FullScreenApp = ({ appId, onClose, launchRect }: FullScreenAppProps
     if (!isSwiping) return;
     
     const swipeTime = Date.now() - touchStartTime.current;
-    const swipeThreshold = window.innerHeight * 0.25;
-    const isQuickSwipe = swipeTime < 300 && swipeY > 50;
+    const swipeThreshold = window.innerHeight * 0.2;
+    const isQuickSwipe = swipeTime < 300 && swipeY > 40;
     
     if (swipeY > swipeThreshold || isQuickSwipe) {
-      // Close the app
       setIsClosing(true);
       setTimeout(() => {
         onClose();
       }, reducedMotion ? 0 : 280);
     } else {
-      // Spring back
       setSwipeY(0);
     }
     
@@ -101,7 +93,6 @@ export const FullScreenApp = ({ appId, onClose, launchRect }: FullScreenAppProps
     setIsSwiping(false);
   }, [swipeY, isSwiping, onClose, reducedMotion]);
 
-  // Handle escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -112,7 +103,6 @@ export const FullScreenApp = ({ appId, onClose, launchRect }: FullScreenAppProps
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [onClose]);
 
-  // Scroll to top when app opens
   useEffect(() => {
     if (containerRef.current) {
       containerRef.current.scrollTop = 0;
@@ -122,22 +112,21 @@ export const FullScreenApp = ({ appId, onClose, launchRect }: FullScreenAppProps
   if (!appData) return null;
 
   const swipeProgress = swipeY / (window.innerHeight * 0.3);
-  const scale = 1 - (swipeProgress * 0.1);
-  const opacity = 1 - (swipeProgress * 0.3);
-  const borderRadius = swipeProgress * 24;
+  const scale = 1 - (swipeProgress * 0.08);
+  const opacity = 1 - (swipeProgress * 0.2);
+  const borderRadius = swipeProgress * 40;
 
   return (
     <div
       ref={containerRef}
       className={cn(
-        "fixed inset-0 z-50 flex flex-col overflow-hidden",
-        "ios-app-container",
+        "fixed inset-0 z-50 flex flex-col overflow-hidden bg-background",
         !reducedMotion && !isClosing && "animate-ios-app-open",
         isClosing && !reducedMotion && "animate-ios-app-close"
       )}
       style={{
         ...getInitialTransform(),
-        transform: swipeY > 0 ? `translateY(${swipeY * 0.3}px) scale(${scale})` : undefined,
+        transform: swipeY > 0 ? `translateY(${swipeY * 0.2}px) scale(${scale})` : undefined,
         opacity: swipeY > 0 ? opacity : undefined,
         borderRadius: swipeY > 0 ? `${borderRadius}px` : undefined,
         transition: !isSwiping ? "transform 0.3s cubic-bezier(0.2, 0.9, 0.2, 1), opacity 0.3s, border-radius 0.3s" : "none",
@@ -149,22 +138,29 @@ export const FullScreenApp = ({ appId, onClose, launchRect }: FullScreenAppProps
       aria-modal="true"
       aria-label={appData.title}
     >
-      {/* App Header - Frosted glass */}
-      <header className="flex-shrink-0 flex items-center gap-3 px-4 pt-12 pb-3 ios-app-header">
+      {/* App Header */}
+      <header 
+        className="flex-shrink-0 flex items-center gap-3 px-4 pt-14 pb-3 border-b border-border"
+        style={{
+          background: "hsl(var(--background) / 0.95)",
+          backdropFilter: "blur(20px) saturate(180%)",
+          WebkitBackdropFilter: "blur(20px) saturate(180%)",
+        }}
+      >
         <button
           onClick={onClose}
           className={cn(
-            "flex items-center gap-1 text-primary font-semibold",
+            "flex items-center gap-0.5 text-[#007aff] font-normal text-[17px]",
             "p-2 -ml-2 rounded-xl transition-all duration-200",
-            "hover:bg-secondary/50 active:scale-95",
-            "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            "active:opacity-50",
+            "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff]"
           )}
           aria-label="Go back to home screen"
         >
-          <ChevronLeft className="w-6 h-6" />
+          <ChevronLeft className="w-5 h-5" strokeWidth={2.5} />
           <span>Back</span>
         </button>
-        <h1 className="text-lg font-semibold flex-1 text-center pr-16">
+        <h1 className="text-[17px] font-semibold flex-1 text-center text-foreground pr-14">
           {appData.title}
         </h1>
       </header>
@@ -174,9 +170,9 @@ export const FullScreenApp = ({ appId, onClose, launchRect }: FullScreenAppProps
         <div className="p-4 pb-8">{appData.component}</div>
       </main>
 
-      {/* Home indicator - swipe up affordance */}
-      <div className="flex-shrink-0 h-10 flex items-center justify-center bg-background">
-        <HomeIndicator className="opacity-50" />
+      {/* Home Indicator */}
+      <div className="flex-shrink-0 h-8 flex items-center justify-center bg-background">
+        <div className="w-[134px] h-[5px] bg-foreground/30 rounded-full" />
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Signal, Wifi, Battery } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -9,6 +9,7 @@ interface IOSStatusBarProps {
 
 export const IOSStatusBar = ({ variant = "auto", onSwipeDown }: IOSStatusBarProps) => {
   const [time, setTime] = useState(new Date());
+  const touchStartY = useRef<number | null>(null);
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
@@ -20,53 +21,63 @@ export const IOSStatusBar = ({ variant = "auto", onSwipeDown }: IOSStatusBarProp
     minute: "2-digit",
   });
 
-  // Handle swipe down for control center
   const handleTouchStart = (e: React.TouchEvent) => {
-    const startY = e.touches[0].clientY;
+    touchStartY.current = e.touches[0].clientY;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (touchStartY.current === null) return;
     
-    const handleTouchMove = (moveEvent: TouchEvent) => {
-      const currentY = moveEvent.touches[0].clientY;
-      if (currentY - startY > 50) {
-        onSwipeDown?.();
-        document.removeEventListener("touchmove", handleTouchMove);
-        document.removeEventListener("touchend", handleTouchEnd);
-      }
-    };
-    
-    const handleTouchEnd = () => {
-      document.removeEventListener("touchmove", handleTouchMove);
-      document.removeEventListener("touchend", handleTouchEnd);
-    };
-    
-    document.addEventListener("touchmove", handleTouchMove);
-    document.addEventListener("touchend", handleTouchEnd);
+    const currentY = e.touches[0].clientY;
+    if (currentY - touchStartY.current > 50) {
+      onSwipeDown?.();
+      touchStartY.current = null;
+    }
+  };
+
+  const handleTouchEnd = () => {
+    touchStartY.current = null;
   };
 
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 h-12 px-6",
-        "flex items-center justify-between",
-        "ios-status-bar"
+        "fixed top-0 left-0 right-0 z-50 h-14 px-8",
+        "flex items-center justify-between"
       )}
       onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
       aria-hidden="true"
     >
       {/* Time (left) */}
-      <span className="font-semibold text-sm ios-status-text">{formattedTime}</span>
+      <span 
+        className="font-semibold text-[15px] text-white tracking-tight"
+        style={{ textShadow: "0 1px 2px rgba(0,0,0,0.3)" }}
+      >
+        {formattedTime}
+      </span>
 
-      {/* Dynamic Island / Notch spacer (center) */}
-      <div className="flex-1 flex justify-center">
-        <div className="w-28 h-7 bg-black rounded-full" />
+      {/* Dynamic Island (center) */}
+      <div className="absolute left-1/2 -translate-x-1/2 top-3">
+        <div 
+          className="w-[126px] h-[37px] bg-black rounded-[20px]"
+          style={{ boxShadow: "0 0 0 0.5px rgba(255,255,255,0.05)" }}
+        />
       </div>
 
       {/* Status icons (right) */}
-      <div className="flex items-center gap-1.5 ios-status-text">
-        <Signal className="w-4 h-4" strokeWidth={2.5} />
-        <Wifi className="w-4 h-4" strokeWidth={2.5} />
-        <div className="relative">
-          <Battery className="w-6 h-6" strokeWidth={1.5} />
-          <div className="absolute top-[5px] left-[3px] w-[14px] h-[10px] bg-current rounded-sm opacity-80" />
+      <div className="flex items-center gap-1 text-white">
+        <Signal className="w-[17px] h-[17px]" strokeWidth={2.5} />
+        <Wifi className="w-[17px] h-[17px]" strokeWidth={2.5} />
+        <div className="flex items-center">
+          <span 
+            className="text-[12px] font-medium mr-0.5"
+            style={{ textShadow: "0 1px 2px rgba(0,0,0,0.3)" }}
+          >
+            100
+          </span>
+          <Battery className="w-[25px] h-[12px]" strokeWidth={1.5} />
         </div>
       </div>
     </header>
